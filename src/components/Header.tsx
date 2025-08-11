@@ -24,8 +24,8 @@ const Header = () => {
           <Image 
             src="/logo.svg" 
             alt="AMZY Logo" 
-            width={isMobile ? 36 : 48}
-            height={isMobile ? 36 : 48}
+            width={isMobile ? 36 : 128}
+            height={isMobile ? 36 : 68}
             style={{ 
               marginRight: isMobile ? 12 : 16 
             }} 

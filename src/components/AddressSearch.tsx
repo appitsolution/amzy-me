@@ -35,11 +35,6 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
 
   // Обработка изменения ввода
   const handleInputChange = (value: string) => {
-    // Не обновляем inputValue, если это пустая строка и у нас есть сохраненный адрес
-    if (value === '' && state.address) {
-      return;
-    }
-    
     setInputValue(value);
     
     // Если адрес был выбран из результатов, сбрасываем флаг
@@ -52,11 +47,11 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
       clearTimeout(timeoutRef.current);
     }
     
-    // Устанавливаем новый таймаут для поиска только если адрес не был выбран
+    // Устанавливаем новый таймаут для поиска
     timeoutRef.current = setTimeout(() => {
-      if (value.trim().length >= 3 && !isAddressSelected) {
+      if (value.trim().length >= 3) {
         searchAddress(value);
-      } else if (!isAddressSelected) {
+      } else {
         dispatch({ type: 'SET_ADDRESS_SEARCH_RESULTS', payload: [] });
       }
     }, 300);
@@ -83,12 +78,13 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
     }
   };
 
-  // Инициализация inputValue из состояния адреса
+  // Инициализация inputValue из состояния адреса только при первом рендере
   useEffect(() => {
     console.log('AddressSearch: state.address =', state.address);
-    console.log('AddressSearch: current inputValue =', inputValue);
-    setInputValue(state.address || '');
-  }, [state.address, inputValue]);
+    if (!inputValue && state.address) {
+      setInputValue(state.address);
+    }
+  }, [state.address]);
 
   // Очистка таймаута при размонтировании
   useEffect(() => {
@@ -104,7 +100,6 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   return (
     <Box>
       <Autocomplete
-        key={`address-${state.address}`} // Принудительно пересоздаем компонент при изменении адреса
         open={open}
         onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
