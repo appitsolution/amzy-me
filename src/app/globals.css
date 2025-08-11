@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -19,7 +21,12 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-image: url('/background.png');
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: Montserrat, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
