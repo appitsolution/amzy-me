@@ -176,7 +176,7 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Функция для загрузки данных о доступности
-  const loadAvailability = async (selectedDate: Dayjs) => {
+  const loadAvailability = React.useCallback(async (selectedDate: Dayjs) => {
     if (!state.selectedJobSize || !state.zipCode) return;
 
     try {
@@ -196,16 +196,9 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
       // В случае ошибки используем статичные данные
       setAvailabilityData([]);
     }
-  };
+  }, [state.selectedJobSize?.id, state.zipCode]);
 
-  // Загружаем данные при изменении даты
-  React.useEffect(() => {
-    if (date) {
-      loadAvailability(date);
-    }
-  }, [date, state.selectedJobSize, state.zipCode, loadAvailability]);
-
-  // Загружаем данные для сегодняшней даты при монтировании
+  // Загружаем данные при изменении даты или зависимостей
   React.useEffect(() => {
     if (date && state.selectedJobSize && state.zipCode) {
       loadAvailability(date);
