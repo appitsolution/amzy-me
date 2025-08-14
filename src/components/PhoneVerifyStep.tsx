@@ -17,14 +17,35 @@ interface PhoneVerifyStepProps {
 }
 
 export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepProps) {
-  const { state } = useBooking();
-  const { checkPhoneVerification } = useApi();
+  const { state, dispatch } = useBooking();
+  const { checkPhoneVerification, sendPhoneAuthCode } = useApi();
   const [code, setCode] = React.useState(['', '', '', '']);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [codeSent, setCodeSent] = React.useState(false);
   const inputsRef = React.useRef<Array<HTMLInputElement | null>>([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Автоматически отправляем код при загрузке компонента
+  React.useEffect(() => {
+    const sendCode = async () => {
+      if (!state.isPhoneVerified && state.phoneNumber && !codeSent) {
+        setLoading(true);
+        try {
+          const cleanPhone = cleanPhoneNumber(state.phoneNumber);
+          await sendPhoneAuthCode(cleanPhone);
+          setCodeSent(true);
+        } catch (error) {
+          setError('Failed to send verification code. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    sendCode();
+  }, [state.phoneNumber, state.isPhoneVerified, codeSent, sendPhoneAuthCode]);
 
   const handleChange = (idx: number, value: string) => {
     if (!/^[0-9]?$/.test(value)) return;
@@ -40,10 +61,23 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     }
   };
 
+  // Автоматическая верификация при вводе всех 4 цифр
+  React.useEffect(() => {
+    const codeString = code.join('');
+    if (codeString.length === 4 && !loading) {
+      handleVerify();
+    }
+  }, [code, loading]);
+
   const handleVerify = async () => {
     const codeString = code.join('');
     if (codeString.length !== 4) {
       setError('Please enter a 4-digit code');
+      return;
+    }
+
+    // Предотвращаем повторный вызов во время загрузки
+    if (loading) {
       return;
     }
 
@@ -55,13 +89,29 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       const result = await checkPhoneVerification(cleanPhone, codeString);
       
       if (result.status === 1) {
-        // Успешная верификация
+        // Успешная верификация - обновляем состояние
+        dispatch({ type: 'SET_PHONE_VERIFIED', payload: true });
         onContinue();
       } else {
         setError(result.msg || 'Invalid code. Please try again.');
       }
     } catch {
       setError('Failed to verify code. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const cleanPhone = cleanPhoneNumber(state.phoneNumber);
+      await sendPhoneAuthCode(cleanPhone);
+      setCodeSent(true);
+      setCode(['', '', '', '']); // Очищаем поле ввода
+    } catch (error) {
+      setError('Failed to resend code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -120,11 +170,13 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
               value={code[idx]}
               onChange={e => handleChange(idx, e.target.value)}
               inputProps={{ 
-                maxLength: 1, 
+                maxLength: 1,
+                inputMode: "numeric",
+                pattern: "[0-9]*",
                 style: { 
                   textAlign: 'center', 
                   border: 'none', 
-                  fontSize: isMobile ? 24 : 20, 
+                  fontSize: isMobile ? 24 : 30, 
                   width: isMobile ? 18 : 24, 
                   height: isMobile ? 18 : 24, 
                   borderRadius: isMobile ? 8 : 12, 
@@ -137,7 +189,24 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
                   background: '#fff',
                   width:  'auto',
                   height: 'auto'
-                } 
+                },
+                '& .MuiInputBase-input:-webkit-autofill': {
+                  '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                  '-webkit-text-fill-color': '#222 !important',
+                  'transition': 'background-color 5000s ease-in-out 0s'
+                },
+                '& .MuiInputBase-input:-webkit-autofill:hover': {
+                  '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                  '-webkit-text-fill-color': '#222 !important'
+                },
+                '& .MuiInputBase-input:-webkit-autofill:focus': {
+                  '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                  '-webkit-text-fill-color': '#222 !important'
+                },
+                '& .MuiInputBase-input:-webkit-autofill:active': {
+                  '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                  '-webkit-text-fill-color': '#222 !important'
+                }
               }}
             />
           ))}
@@ -153,33 +222,39 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
             {error}
           </Typography>
         )}
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        {loading && (
+          <Typography sx={{ 
+            color: '#666', 
+            fontSize: isMobile ? 14 : 16, 
+            mb: isMobile ? 2 : 3,
+            textAlign: 'center'
+          }}>
+            {codeSent ? 'Verifying...' : 'Sending code...'}
+          </Typography>
+        )}
+        
+        {codeSent && !loading && (
           <Button 
-            variant="contained" 
-            disabled={loading || code.join('').length !== 4}
-            onClick={handleVerify}
+            onClick={handleResendCode}
             sx={{ 
-              background: '#D94F04', 
-              color: '#fff', 
-              borderRadius: 2, 
-              px: isMobile ? 6 : 3, 
-              py: isMobile ? 1.5 : 1, 
-              fontSize: isMobile ? 18 : 16, 
-              fontWeight: 600, 
-              textTransform: 'none', 
-              boxShadow: 'none', 
-              '&:hover': { background: '#b53e02' },
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
+              color: '#D94F04', 
+              textDecoration: 'none', 
+              fontSize: isMobile ? 14 : 16, 
+              mb: isMobile ? 2 : 3, 
+              display: 'block', 
+              fontWeight: 500,
+              cursor: 'pointer',
+              background: 'none',
+              border: 'none',
+              '&:hover': {
+                color: '#b53e02',
+                background: 'none'
+              }
             }}
           >
-            {'Verify'}
-            <svg xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: '8px' }} width="8" height="14" viewBox="0 0 8 14">
-              <path d="M7.69229 7.44217L1.44229 13.6922C1.38422 13.7502 1.31528 13.7963 1.23941 13.8277C1.16354 13.8592 1.08223 13.8753 1.0001 13.8753C0.917982 13.8753 0.836664 13.8592 0.760793 13.8277C0.684922 13.7963 0.615984 13.7502 0.557916 13.6922C0.499847 13.6341 0.453784 13.5652 0.422357 13.4893C0.390931 13.4134 0.374756 13.3321 0.374756 13.25C0.374756 13.1679 0.390931 13.0865 0.422357 13.0107C0.453784 12.9348 0.499847 12.8659 0.557916 12.8078L6.36651 6.99998L0.557916 1.19217C0.44064 1.07489 0.374756 0.915834 0.374756 0.749981C0.374756 0.584129 0.44064 0.425069 0.557916 0.307794C0.675191 0.190518 0.834251 0.124634 1.0001 0.124634C1.16596 0.124634 1.32502 0.190518 1.44229 0.307794L7.69229 6.55779C7.7504 6.61584 7.7965 6.68477 7.82795 6.76064C7.85941 6.83652 7.87559 6.91785 7.87559 6.99998C7.87559 7.08212 7.85941 7.16344 7.82795 7.23932C7.7965 7.31519 7.7504 7.38412 7.69229 7.44217Z" fill={code.join('').length !== 4 ? 'gray' :  'white'}/>
-            </svg>
+            Resend Code
           </Button>
-        </Box>
+        )}
       </Box>
     </Box>
   );

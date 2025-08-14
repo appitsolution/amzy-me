@@ -116,24 +116,48 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
           }
         }}
         filterOptions={(x) => x} // Отключаем встроенную фильтрацию
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label={label}
-            placeholder={placeholder}
-            error={error || !!addressSearch.error}
-            helperText={helperText || addressSearch.error}
-            required={required}
-            sx={{
-              '& .MuiOutlinedInput-root': { 
-                backgroundColor: '#fff' ,
-                color: '#222'
-              },
-              '& .MuiInputBase-input::placeholder': {
-                color: 'rgba(0, 0, 0, 0.87)',
-                opacity: 1
-              }
-            }}
+                    renderInput={(params) => (
+              <TextField
+                {...params}
+                label={label}
+                placeholder={placeholder}
+                error={error || !!addressSearch.error}
+                helperText={helperText || addressSearch.error}
+                required={required}
+                inputProps={{
+                  ...params.inputProps,
+                  autoComplete: 'street-address',
+                  name: 'address',
+                  type: 'text',
+                  'data-testid': 'address-input'
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': { 
+                    backgroundColor: '#fff' ,
+                    color: '#222'
+                  },
+                  '& .MuiInputBase-input::placeholder': {
+                    color: 'rgba(0, 0, 0, 0.87)',
+                    opacity: 1
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important',
+                    'transition': 'background-color 5000s ease-in-out 0s'
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill:hover': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important'
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill:focus': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important'
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill:active': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important'
+                  }
+                }}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

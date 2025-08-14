@@ -10,8 +10,9 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { AddressSearch } from './AddressSearch';
 import { useBooking } from '../context/BookingContext';
-import { validateName, validatePhoneNumber, getFieldError } from '../utils/validation';
+import { validateName, validatePhoneNumber, getFieldError, formatPhoneNumber } from '../utils/validation';
 import { useApi } from '../hooks/useApi';
+import { storageUtils } from '../utils/storage';
 
 interface BookingFormProps {
   onContinue: () => void;
@@ -104,7 +105,7 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
       >
         Request booking
       </Typography>
-      <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 2 : 2.5 }}>
+      <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 2 : 2.5 }} autoComplete="on">
         <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 2 : 2}>
           <TextField 
             fullWidth 
@@ -119,10 +120,33 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
             }}
             error={!!errors.firstName}
             helperText={errors.firstName}
+            inputProps={{
+              autoComplete: 'given-name',
+              name: 'firstName',
+              type: 'text',
+              'data-testid': 'first-name-input'
+            }}
             sx={{ 
               fontSize: isMobile ? 16 : 18, 
               borderRadius: '2px', 
-              '& .MuiOutlinedInput-root': { backgroundColor: '#fff' } 
+              '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+              '& .MuiInputBase-input:-webkit-autofill': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important',
+                'transition': 'background-color 5000s ease-in-out 0s'
+              },
+              '& .MuiInputBase-input:-webkit-autofill:hover': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important'
+              },
+              '& .MuiInputBase-input:-webkit-autofill:focus': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important'
+              },
+              '& .MuiInputBase-input:-webkit-autofill:active': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important'
+              }
             }} 
           />
           <TextField 
@@ -138,10 +162,33 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
             }}
             error={!!errors.lastName}
             helperText={errors.lastName}
+            inputProps={{
+              autoComplete: 'family-name',
+              name: 'lastName',
+              type: 'text',
+              'data-testid': 'last-name-input'
+            }}
             sx={{ 
               fontSize: isMobile ? 16 : 18, 
               borderRadius: '2px', 
-              '& .MuiOutlinedInput-root': { backgroundColor: '#fff' } 
+              '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+              '& .MuiInputBase-input:-webkit-autofill': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important',
+                'transition': 'background-color 5000s ease-in-out 0s'
+              },
+              '& .MuiInputBase-input:-webkit-autofill:hover': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important'
+              },
+              '& .MuiInputBase-input:-webkit-autofill:focus': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important'
+              },
+              '& .MuiInputBase-input:-webkit-autofill:active': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important'
+              }
             }} 
           />
         </Stack>
@@ -161,19 +208,49 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
             fullWidth
             placeholder="(253)444-0343"
             variant="outlined"
-            value={state.phoneNumber}
+            value={formatPhoneNumber(state.phoneNumber)}
             onChange={(e) => {
-              dispatch({ type: 'SET_PHONE_NUMBER', payload: e.target.value });
+              const formattedPhone = formatPhoneNumber(e.target.value);
+              
+              // Если номер телефона изменился и он был верифицирован, сбрасываем статус верификации
+              if (!storageUtils.isPhoneNumberVerified(formattedPhone) && state.isPhoneVerified) {
+                dispatch({ type: 'SET_PHONE_VERIFIED', payload: false });
+              }
+              
+              dispatch({ type: 'SET_PHONE_NUMBER', payload: formattedPhone });
               if (errors.phoneNumber) {
                 setErrors(prev => ({ ...prev, phoneNumber: '' }));
               }
             }}
             error={!!errors.phoneNumber}
             helperText={errors.phoneNumber}
+            inputProps={{
+              autoComplete: 'tel',
+              name: 'phoneNumber',
+              type: 'tel',
+              'data-testid': 'phone-input'
+            }}
             sx={{ 
               fontSize: isMobile ? 16 : 18, 
               maxWidth: isMobile ? '100%' : 220, 
-              '& .MuiOutlinedInput-root': { backgroundColor: '#fff' } 
+              '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+              '& .MuiInputBase-input:-webkit-autofill': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important',
+                'transition': 'background-color 5000s ease-in-out 0s'
+              },
+              '& .MuiInputBase-input:-webkit-autofill:hover': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important'
+              },
+              '& .MuiInputBase-input:-webkit-autofill:focus': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important'
+              },
+              '& .MuiInputBase-input:-webkit-autofill:active': {
+                '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                '-webkit-text-fill-color': '#222 !important'
+              }
             }}
             InputProps={{
               endAdornment: (
@@ -204,10 +281,25 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
             }}
             loading={loading}
           >
-            Continue
+            {state.isPhoneVerified ? 'Continue' : 'Continue'}
             <Image src="/icons/continue.svg" alt="continue" width={22} height={22} style={{ marginLeft: 8, marginBottom: -2 }} />
           </Button>
         </Stack>
+        
+        {state.isPhoneVerified && (
+          <Typography sx={{ 
+            color: '#4caf50', 
+            fontSize: isMobile ? 14 : 16, 
+            textAlign: 'center',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1
+          }}>
+            ✓ Phone number verified
+          </Typography>
+        )}
       </Box>
     </Box>
   );

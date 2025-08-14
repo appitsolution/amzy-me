@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import type { AddressSearchResult, JobSize } from '../services/api';
+import { storageUtils } from '../utils/storage';
 
 // Типы для состояния
 export interface BookingState {
@@ -66,27 +67,60 @@ export type BookingAction =
   | { type: 'PREV_STEP' };
 
 // Начальное состояние
-const initialState: BookingState = {
-  firstName: '',
-  lastName: '',
-  phoneNumber: '',
-  address: '',
-  city: '',
-  state: '',
-  zipCode: '',
-  addressSearchResults: [],
-  verificationCode: '',
-  isPhoneVerified: false,
-  isPrivacyAccepted: false,
-  selectedJobSize: null,
-  notes: '',
-  notes2: '',
-  photos: [],
-  selectedDate: null,
-  selectedTime: null,
-  currentStep: 1,
-  isSubmitted: false,
-  appointmentId: null,
+const getInitialState = (): BookingState => {
+  // Проверяем sessionStorage для статуса верификации телефона
+  const { isVerified, phoneNumber } = storageUtils.getPhoneVerified();
+  
+  // Проверяем sessionStorage для статуса принятия privacy policy
+  const isPrivacyAccepted = storageUtils.getPrivacyAccepted();
+  
+  if (isVerified && phoneNumber) {
+    return {
+      firstName: '',
+      lastName: '',
+      phoneNumber: phoneNumber,
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      addressSearchResults: [],
+      verificationCode: '',
+      isPhoneVerified: true, // Устанавливаем как верифицированный
+      isPrivacyAccepted: isPrivacyAccepted, // Восстанавливаем статус privacy policy
+      selectedJobSize: null,
+      notes: '',
+      notes2: '',
+      photos: [],
+      selectedDate: null,
+      selectedTime: null,
+      currentStep: 1,
+      isSubmitted: false,
+      appointmentId: null,
+    };
+  }
+  
+  return {
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    addressSearchResults: [],
+    verificationCode: '',
+    isPhoneVerified: false,
+    isPrivacyAccepted: isPrivacyAccepted, // Восстанавливаем статус privacy policy
+    selectedJobSize: null,
+    notes: '',
+    notes2: '',
+    photos: [],
+    selectedDate: null,
+    selectedTime: null,
+    currentStep: 1,
+    isSubmitted: false,
+    appointmentId: null,
+  };
 };
 
 // Редьюсер для управления состоянием
@@ -111,8 +145,20 @@ function bookingReducer(state: BookingState, action: BookingAction): BookingStat
     case 'SET_VERIFICATION_CODE':
       return { ...state, verificationCode: action.payload };
     case 'SET_PHONE_VERIFIED':
+      // Сохраняем статус верификации в sessionStorage
+      if (action.payload) {
+        storageUtils.setPhoneVerified(state.phoneNumber);
+      } else {
+        storageUtils.clearPhoneVerified();
+      }
       return { ...state, isPhoneVerified: action.payload };
     case 'SET_PRIVACY_ACCEPTED':
+      // Сохраняем статус privacy policy в sessionStorage
+      if (action.payload) {
+        storageUtils.setPrivacyAccepted();
+      } else {
+        storageUtils.clearPrivacyAccepted();
+      }
       return { ...state, isPrivacyAccepted: action.payload };
     case 'SET_SELECTED_JOB_SIZE':
       return { ...state, selectedJobSize: action.payload };
@@ -138,7 +184,10 @@ function bookingReducer(state: BookingState, action: BookingAction): BookingStat
     case 'SET_APPOINTMENT_ID':
       return { ...state, appointmentId: action.payload };
     case 'RESET_STATE':
-      return initialState;
+      // Очищаем sessionStorage при сбросе состояния
+      storageUtils.clearPhoneVerified();
+      storageUtils.clearPrivacyAccepted();
+      return getInitialState();
     case 'NEXT_STEP':
       return { ...state, currentStep: Math.min(state.currentStep + 1, 5) };
     case 'PREV_STEP':
@@ -162,7 +211,7 @@ interface BookingProviderProps {
 }
 
 export const BookingProvider: React.FC<BookingProviderProps> = ({ children }) => {
-  const [state, dispatch] = useReducer(bookingReducer, initialState);
+  const [state, dispatch] = useReducer(bookingReducer, getInitialState());
 
   return (
     <BookingContext.Provider value={{ state, dispatch }}>

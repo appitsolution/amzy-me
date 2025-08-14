@@ -20,10 +20,24 @@ interface PrivacyStepProps {
 export default function PrivacyStep({ onContinue, onBack }: PrivacyStepProps) {
   const [checked, setChecked] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const { state } = useBooking();
+  const { state, dispatch } = useBooking();
   const { sendPhoneAuthCode } = useApi();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Автоматически пропускаем шаг, если privacy policy уже принята
+  React.useEffect(() => {
+    if (state.isPrivacyAccepted) {
+      onContinue();
+    }
+  }, [state.isPrivacyAccepted, onContinue]);
+
+  // Устанавливаем checked в true, если privacy policy уже принята
+  React.useEffect(() => {
+    if (state.isPrivacyAccepted) {
+      setChecked(true);
+    }
+  }, [state.isPrivacyAccepted]);
 
   return (
     <Box sx={{ minHeight: isMobile ? '80vh' : '72vh', display: 'flex', alignItems: 'center', justifyContent: 'center', px: isMobile ? 1 : 0 }}>
@@ -35,10 +49,14 @@ export default function PrivacyStep({ onContinue, onBack }: PrivacyStepProps) {
           By Checking the box, you agree to receive text messages from Amzy related to your order status, person &amp; login verification and help external links. Message &amp; data rates may apply. Message frequency varies by usage. Reply HELP for help and STOP to cancel.
         </Typography>
         <Stack direction="row" spacing={isMobile ? 2 : 6} justifyContent="center" alignItems="center" sx={{ mb: isMobile ? 2 : 3 }}>
-          <span style={{ color: '#D94F04', fontSize: isMobile ? 18 : 24 }}>&bull;</span>
+          <div>
+          <span style={{ color: '#D94F04', fontSize: isMobile ? 18 : 24, marginRight: 10 }}>&bull;</span>
           <Link href="https://docs.google.com/document/d/1t19RgID4nwlvANcK1gDJSFrXtn2m65V6/edit?usp=sharing&ouid=108826075963447222756&rtpof=true&sd=true" sx={{ color: '#D94F04', fontSize: isMobile ? 15 : 18, fontWeight: 500, textDecoration: 'none' }}>Terms of Use</Link>
-          <span style={{ color: '#D94F04', fontSize: isMobile ? 18 : 24 }}>&bull;</span>
+          </div>
+          <div>
+          <span style={{ color: '#D94F04', fontSize: isMobile ? 18 : 24, marginRight:  10 }}>&bull;</span>
           <Link href="https://docs.google.com/document/d/1ObSmhxE8967AjPis9tPUuFHHGxfMoEdmZuy4gcaU-3Q/edit?usp=sharing" sx={{ color: '#D94F04', fontSize: isMobile ? 15 : 18, fontWeight: 500, textDecoration: 'none' }}>Privacy Statement</Link>
+          </div>
         </Stack>
         <Stack direction="row" justifyContent="center" alignItems="center" sx={{ mb: isMobile ? 3 : 5 }}>
           <FormControlLabel
@@ -84,6 +102,9 @@ export default function PrivacyStep({ onContinue, onBack }: PrivacyStepProps) {
               
               setLoading(true);
               try {
+                // Сохраняем статус принятия privacy policy
+                dispatch({ type: 'SET_PRIVACY_ACCEPTED', payload: true });
+                
                 const cleanPhone = cleanPhoneNumber(state.phoneNumber);
                 await sendPhoneAuthCode(cleanPhone);
                 onContinue();

@@ -17,6 +17,7 @@ import { useBooking } from '../context/BookingContext';
 import { useApi } from '../hooks/useApi';
 import { apiService } from '../services/api';
 import { getTimezoneOffsetHours } from '../utils/dateUtils';
+import { cleanPhoneNumber } from '../utils/validation';
 
 interface DateTimeStepProps {
   onContinue: () => void;
@@ -263,7 +264,7 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
       const timestamp = Math.floor(selectedDateTime.valueOf() / 1000); // Конвертируем в секунды
 
       const request = {
-        phone_number: state.phoneNumber,
+        phone_number: cleanPhoneNumber(state.phoneNumber),
         firstname: state.firstName,
         lastname: state.lastName,
         house: state.address,
@@ -293,19 +294,23 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
         <Typography variant="h2" color="#323232" sx={{ fontWeight: 500, fontSize: isMobile ? 28 : { xs: 32, md: 48 }, mb: isMobile ? 2 : 2, lineHeight: 1.1 }}>
           Request date and time
         </Typography>
-        <Stack direction="row" justifyContent="center" alignItems="center" spacing={isMobile ? 1 : 2} sx={{ mb: isMobile ? 3 : 4 }}>
+        <Stack direction={isMobile ? 'column' : 'row'} justifyContent="center" alignItems="center" spacing={isMobile ? 1 : 2} sx={{ mb: isMobile ? 3 : 4 }}>
+          <Stack direction="row" spacing={1} alignItems="center">
           <Typography sx={{ color: '#bdbdbd', fontSize: isMobile ? 16 : 22, fontWeight: 500 }}>
             {state.firstName} {state.lastName} | {state.address}, {state.city}, {state.state} {state.zipCode}
           </Typography>
           <IconButton size="small" sx={{ color: '#bdbdbd' }} onClick={onHomepage}>
             <EditIcon />
           </IconButton>
+          </Stack>
+          <Stack direction="row" spacing={1} alignItems="center">
           <Typography sx={{ color: '#bdbdbd', fontSize: isMobile ? 16 : 22, fontWeight: 500 }}>
             {state.selectedJobSize?.name || 'Select job size'}
           </Typography>
           <IconButton size="small" sx={{ color: '#bdbdbd' }} onClick={onBack}>
             <EditIcon />
           </IconButton>
+          </Stack>
         </Stack>
         <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 4 : 6} justifyContent="center" alignItems="flex-start" sx={{ mb: isMobile ? 3 : 4 }}>
           <Box sx={{ width: isMobile ? '100%' : 'auto' }}>
@@ -361,7 +366,12 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
                 </Typography>
               )}
             </Typography>
-            <Stack direction="row" flexWrap="wrap" gap={isMobile ? 1 : 1.5}>
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: isMobile ? 'repeat(4, 1fr)' : 'repeat(7, 1fr)', 
+              gap: isMobile ? 1 : 1.5,
+              width: '100%'
+            }}>
               {getTimeSlots().map((t) => (
                 <Button
                   key={t.label}
@@ -369,24 +379,29 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
                   disabled={t.status === 'disabled'}
                   onClick={() => t.status !== 'disabled' && setSelectedTime(t.label)}
                   sx={{
-                    minWidth: isMobile ? 60 : 72,
+                    width: '100%',
+                    height: 35,
                     bgcolor: t.status === 'free' ? statusColor.free : t.status === 'medium' ? statusColor.medium : t.status === 'busy' ? statusColor.busy : statusColor.disabled,
-                    color: t.status === 'medium' ? '#222' : '#fff',
-                    opacity: t.status === 'disabled' ? 0.5 : 1,
+                    color: selectedTime === t.label ? '#fff' : (t.status === 'medium' ? '#222' : '#fff'),
+                    opacity: t.status === 'disabled' ? 0.5 : (selectedTime && selectedTime !== t.label ? 0.6 : 1),
                     fontWeight: 600,
-                    fontSize: isMobile ? 14 : 18,
+                    fontSize: isMobile ? 12 : 14,
                     borderRadius: 2,
                     boxShadow: 'none',
                     '&:hover': {
                       bgcolor: t.status === 'free' ? '#5a8c13' : t.status === 'medium' ? '#e6c200' : t.status === 'busy' ? '#b53e02' : statusColor.disabled,
+                      opacity: 1,
                     },
                     border: selectedTime === t.label ? '2px solid #222' : 'none',
+                    transition: 'opacity 0.2s ease-in-out',
+                    textTransform: 'none',
+                    padding: isMobile ? '8px 4px' : '12px 8px',
                   }}
                 >
                   {t.label}
                 </Button>
               ))}
-            </Stack>
+            </Box>
             <Stack direction="row" spacing={isMobile ? 2 : 3} alignItems="center" sx={{ mt: isMobile ? 2 : 3 }}>
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Box sx={{ width: 12, height: 12, bgcolor: statusColor.free, borderRadius: '50%' }} />

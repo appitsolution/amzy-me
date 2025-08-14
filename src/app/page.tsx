@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BookingForm from '@/components/BookingForm';
@@ -9,16 +9,59 @@ import PhoneVerifyStep from '@/components/PhoneVerifyStep';
 import JunkAmountStep from '@/components/JunkAmountStep';
 import DateTimeStep from '@/components/DateTimeStep';
 import BookingSubmitted from '@/components/BookingSubmitted';
-import { BookingProvider } from '@/context/BookingContext';
+import { BookingProvider, useBooking } from '@/context/BookingContext';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 type Step = 'homepage' | 'privacystep' | 'phoneverifystep' | 'junkamountstep' | 'datetimestep' | 'bookingsubmitted';
 
-export default function HomePage() {
-  const [currentStep, setCurrentStep] = useState<Step>('homepage');
+function HomePageContent() {
+  const [currentStep, setCurrentStep] = useState<Step>('datetimestep');
+  const { state } = useBooking();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Проверяем статус верификации при изменении состояния
+  useEffect(() => {
+    if (state.isPhoneVerified && currentStep === 'phoneverifystep') {
+      // Если телефон уже верифицирован, пропускаем шаг верификации
+      setCurrentStep('junkamountstep');
+    }
+  }, [state.isPhoneVerified, currentStep]);
+
+  // Проверяем статус privacy policy при изменении состояния
+  useEffect(() => {
+    if (state.isPrivacyAccepted && currentStep === 'privacystep') {
+      // Если privacy policy уже принята, пропускаем этот шаг
+      if (state.isPhoneVerified) {
+        setCurrentStep('junkamountstep');
+      } else {
+        setCurrentStep('phoneverifystep');
+      }
+    }
+  }, [state.isPrivacyAccepted, state.isPhoneVerified, currentStep]);
+
+  const handleContinueFromHomepage = () => {
+    if (state.isPrivacyAccepted) {
+      // Если privacy policy уже принята, проверяем телефон
+      if (state.isPhoneVerified) {
+        setCurrentStep('junkamountstep');
+      } else {
+        setCurrentStep('phoneverifystep');
+      }
+    } else {
+      setCurrentStep('privacystep');
+    }
+  };
+
+  const handleContinueFromPrivacy = () => {
+    if (state.isPhoneVerified) {
+      // Если телефон уже верифицирован, пропускаем шаг верификации
+      setCurrentStep('junkamountstep');
+    } else {
+      setCurrentStep('phoneverifystep');
+    }
+  };
 
   const renderStep = () => {
     switch (currentStep) {
@@ -49,6 +92,7 @@ export default function HomePage() {
                   autoPlay 
                   loop 
                   muted 
+                  controls={true}
                   style={{ 
                     width: '100%', 
                     height: 'auto',
@@ -68,7 +112,7 @@ export default function HomePage() {
                 justifyContent: 'center',
                 order: isMobile ? 2 : 2
               }}>
-                <BookingForm onContinue={() => setCurrentStep('privacystep')} />
+                <BookingForm onContinue={handleContinueFromHomepage} />
               </div>
             </div>
           </main>
@@ -82,7 +126,7 @@ export default function HomePage() {
             justifyContent: 'center', 
             padding: isMobile ? '20px 16px' : '40px 20px'
           }}>
-            <PrivacyStep onContinue={() => setCurrentStep('phoneverifystep')} onBack={() => setCurrentStep('homepage')} />
+            <PrivacyStep onContinue={handleContinueFromPrivacy} onBack={() => setCurrentStep('homepage')} />
           </main>
         );
       
@@ -147,12 +191,18 @@ export default function HomePage() {
   };
 
   return (
+    <div>
+      <Header />
+      {renderStep()}
+      <Footer />
+    </div>
+  );
+}
+
+export default function HomePage() {
+  return (
     <BookingProvider>
-      <div>
-        <Header />
-        {renderStep()}
-        <Footer />
-      </div>
+      <HomePageContent />
     </BookingProvider>
   );
 }

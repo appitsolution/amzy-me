@@ -123,7 +123,7 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({ selectedDate }) => {
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
         {availabilityData.map((hourData) => (
-          <Box key={hourData.hour} sx={{ flex: '1 1 120px', minWidth: 0 }}>
+          <Box key={hourData.hour} sx={{ flex: '1 1 200px', minWidth: 0 }}>
             <Button
               variant={isTimeSelected(hourData.hour) ? 'contained' : 'outlined'}
               color={getAvailabilityColor(hourData.percentage) as 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning'}

@@ -42,6 +42,36 @@ a {
   text-decoration: none;
 }
 
+/* Исправление проблемы с синим цветом полей ввода после автозаполнения */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #222 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Для Material-UI полей ввода */
+.MuiInputBase-input:-webkit-autofill,
+.MuiInputBase-input:-webkit-autofill:hover,
+.MuiInputBase-input:-webkit-autofill:focus,
+.MuiInputBase-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #222 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Дополнительные стили для автозаполнения */
+.MuiAutocomplete-input:-webkit-autofill,
+.MuiAutocomplete-input:-webkit-autofill:hover,
+.MuiAutocomplete-input:-webkit-autofill:focus,
+.MuiAutocomplete-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #222 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

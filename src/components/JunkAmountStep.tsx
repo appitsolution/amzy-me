@@ -25,8 +25,8 @@ interface JunkAmountStepProps {
 // Маппинг для соответствия API данных с UI
 const loadMapping = {
   '1': { value: '1', label: 'Mini', icon: '/icons/mini.svg' },
-  '2': { value: '2', label: '1 PickUp truck load', icon: '/icons/pickup.svg' },
-  '3': { value: '3', label: '2 PickUp Loads', icon: '/icons/pickup2.svg' },
+  '2': { value: '2', label: 'Pickup load', icon: '/icons/pickup.svg' },
+  '3': { value: '3', label: 'Pickup load x2', icon: '/icons/pickup2.svg' },
   '4': { value: '4', label: 'Dump Truck', icon: '/icons/dump.svg' },
   '5': { value: '5', label: 'Dump Truck +', icon: '/icons/dump_truck.svg' },
 };
@@ -34,8 +34,12 @@ const loadMapping = {
 export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepProps) {
   const { state, dispatch } = useBooking();
   const { getJobSizes, jobSizes } = useApi();
-  const [selected, setSelected] = React.useState('2'); // По умолчанию выбираем второй вариант
+  const [selected, setSelected] = React.useState(() => {
+    // Инициализируем с сохраненным значением из контекста, если оно есть
+    return state.selectedJobSize?.id || '2';
+  });
   const [price, setPrice] = React.useState([140, 270]);
+  const [errors, setErrors] = React.useState({ notes: '', notes2: '' });
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -45,6 +49,24 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
       getJobSizes();
     }
   }, [getJobSizes, jobSizes.data]);
+
+  // Синхронизируем локальное состояние с контекстом при изменении selectedJobSize
+  React.useEffect(() => {
+    if (state.selectedJobSize?.id) {
+      setSelected(state.selectedJobSize.id);
+    }
+  }, [state.selectedJobSize?.id]);
+
+  // Также синхронизируем при загрузке данных о размерах работ
+  React.useEffect(() => {
+    if (jobSizes.data?.data && state.selectedJobSize?.id) {
+      // Проверяем, что выбранный размер работы существует в загруженных данных
+      const jobSizeExists = jobSizes.data.data.some(job => job.id === state.selectedJobSize?.id);
+      if (jobSizeExists) {
+        setSelected(state.selectedJobSize.id);
+      }
+    }
+  }, [jobSizes.data, state.selectedJobSize?.id]);
 
   // Получаем данные о выбранном размере работы
   const selectedJobSize = jobSizes.data?.data?.find(job => job.id === selected);
@@ -56,9 +78,60 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
     }
   }, [selectedJobSize]);
 
+  // Также обновляем цены при инициализации, если в контексте уже есть выбранный размер
+  React.useEffect(() => {
+    if (state.selectedJobSize && jobSizes.data?.data) {
+      const jobSize = jobSizes.data.data.find(job => job.id === state.selectedJobSize?.id);
+      if (jobSize) {
+        setPrice([parseInt(jobSize.price_min), parseInt(jobSize.price_max)]);
+      }
+    }
+  }, [state.selectedJobSize, jobSizes.data]);
+
   // Статичные min/max для ползунка (общий диапазон всех размеров работ)
   const staticMin = 95; // Минимальная цена из всех вариантов
   const staticMax = 1480; // Максимальная цена из всех вариантов
+
+  // Функция валидации
+  const validateFields = () => {
+    const newErrors = { notes: '', notes2: '' };
+    let isValid = true;
+
+    if (!state.notes.trim()) {
+      newErrors.notes = 'Message to Contractor is required.';
+      isValid = false;
+    }
+
+    if (!state.notes2.trim()) {
+      newErrors.notes2 = 'Message to Contractor is required.';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // Обработчик нажатия кнопки Next
+  const handleContinue = () => {
+    if (validateFields()) {
+      onContinue();
+    }
+  };
+
+  // Очистка ошибок при изменении полей
+  const handleNotesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({ type: 'SET_NOTES', payload: e.target.value });
+    if (errors.notes) {
+      setErrors(prev => ({ ...prev, notes: '' }));
+    }
+  };
+
+  const handleNotes2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({ type: 'SET_NOTES2', payload: e.target.value });
+    if (errors.notes2) {
+      setErrors(prev => ({ ...prev, notes2: '' }));
+    }
+  };
 
   return (
     <Box sx={{ minHeight: isMobile ? '70vh' : '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', px: isMobile ? 2 : 0 }}>
@@ -130,7 +203,8 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
             max={staticMax}
             step={10}
             disabled={true} // Заблокирован
-            valueLabelDisplay="off"
+            valueLabelDisplay="on"
+            valueLabelFormat={(value) => `$${value}`}
             sx={{ 
               color: '#D94F04',
               '& .MuiSlider-thumb': {
@@ -149,19 +223,19 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
               },
               '& .MuiSlider-rail': {
                 backgroundColor: '#DEDEDE'
+              },
+              '& .MuiSlider-valueLabel': {
+                color: '#D94F04',
+                fontWeight: 600,
+                fontSize: 15,
+                backgroundColor: 'transparent',
+                top: 'auto',
+                bottom: '-60px'
               }
             }}
             marks={[]}
             disableSwap
           />
-          <Stack direction="row" justifyContent="space-between" sx={{ mt: -2 }}>
-            <Typography sx={{ color: '#D94F04', fontWeight: 600, fontSize: isMobile ? 16 : 20 }}>
-              ${selectedJobSize ? selectedJobSize.price_min : price[0]}
-            </Typography>
-            <Typography sx={{ color: '#D94F04', fontWeight: 600, fontSize: isMobile ? 16 : 20 }}>
-              ${selectedJobSize ? selectedJobSize.price_max : price[1]}
-            </Typography>
-          </Stack>
         </Box>
         <Box sx={{ textAlign: 'left', mb: isMobile ? 3 : 2 }}>
           <Typography sx={{ fontWeight: 600, fontSize: isMobile ? 14 : 16, mb: 1, color: '#323232' }}>Message to contractor</Typography>
@@ -170,16 +244,58 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
               <TextField 
                 fullWidth 
                 value={state.notes}
-                onChange={(e) => dispatch({ type: 'SET_NOTES', payload: e.target.value })}
-                sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#fff' } }} 
+                onChange={handleNotesChange}
+                error={!!errors.notes}
+                helperText={errors.notes}
+                sx={{ 
+                  '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+                  '& .MuiInputBase-input:-webkit-autofill': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important',
+                    'transition': 'background-color 5000s ease-in-out 0s'
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill:hover': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important'
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill:focus': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important'
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill:active': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important'
+                  }
+                }} 
                 placeholder="Where is everything at? (Attic, basement or else?)" 
                 variant="outlined" 
               />
               <TextField 
                 fullWidth 
                 value={state.notes2}
-                onChange={(e) => dispatch({ type: 'SET_NOTES2', payload: e.target.value })}
-                sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#fff' } }} 
+                onChange={handleNotes2Change}
+                error={!!errors.notes2}
+                helperText={errors.notes2}
+                sx={{ 
+                  '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+                  '& .MuiInputBase-input:-webkit-autofill': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important',
+                    'transition': 'background-color 5000s ease-in-out 0s'
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill:hover': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important'
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill:focus': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important'
+                  },
+                  '& .MuiInputBase-input:-webkit-autofill:active': {
+                    '-webkit-box-shadow': '0 0 0 30px white inset !important',
+                    '-webkit-text-fill-color': '#222 !important'
+                  }
+                }} 
                 placeholder="What is the largest and heaviest item" 
                 variant="outlined" 
               />
@@ -192,7 +308,7 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
         <Stack direction="row" spacing={isMobile ? 2 : 4} justifyContent="center" sx={{ mt: isMobile ? 3 : 4 }}>
           <Button 
             variant="outlined" 
-            disabled 
+            onClick={onBack}
             sx={{ 
               minWidth: isMobile ? 120 : 120, 
               width: isMobile ? 140 : 120,
@@ -217,7 +333,7 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
           </Button>
           <Button 
             variant="contained" 
-            onClick={onContinue}
+            onClick={handleContinue}
             sx={{ 
               minWidth: isMobile ? 120 : 120, 
               width: isMobile ? 140 : 120,
