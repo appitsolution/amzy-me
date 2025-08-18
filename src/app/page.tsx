@@ -16,7 +16,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 type Step = 'homepage' | 'privacystep' | 'phoneverifystep' | 'junkamountstep' | 'datetimestep' | 'bookingsubmitted';
 
 function HomePageContent() {
-  const [currentStep, setCurrentStep] = useState<Step>('datetimestep');
+  const [currentStep, setCurrentStep] = useState<Step>('homepage');
   const { state } = useBooking();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));

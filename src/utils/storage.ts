@@ -4,6 +4,10 @@ const STORAGE_KEYS = {
   VERIFIED_PHONE: 'verifiedPhone',
   VERIFIED_PHONE_NUMBER: 'verifiedPhoneNumber',
   PRIVACY_ACCEPTED: 'privacyAccepted',
+  ADDRESS_HOUSE: 'addressHouse',
+  ADDRESS_CITY: 'addressCity',
+  ADDRESS_STATE: 'addressState',
+  ADDRESS_ZIP: 'addressZip',
 } as const;
 
 export const storageUtils = {
@@ -73,6 +77,39 @@ export const storageUtils = {
   clearPrivacyAccepted: () => {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem(STORAGE_KEYS.PRIVACY_ACCEPTED);
+    }
+  },
+
+  // Сохранение полей адреса
+  setAddressFields: (house: string, city: string, state: string, zipcode: string) => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(STORAGE_KEYS.ADDRESS_HOUSE, house || '');
+      sessionStorage.setItem(STORAGE_KEYS.ADDRESS_CITY, city || '');
+      sessionStorage.setItem(STORAGE_KEYS.ADDRESS_STATE, state || '');
+      sessionStorage.setItem(STORAGE_KEYS.ADDRESS_ZIP, zipcode || '');
+    }
+  },
+
+  // Получение полей адреса
+  getAddressFields: (): { house: string; city: string; state: string; zipcode: string } => {
+    if (typeof window !== 'undefined') {
+      return {
+        house: sessionStorage.getItem(STORAGE_KEYS.ADDRESS_HOUSE) || '',
+        city: sessionStorage.getItem(STORAGE_KEYS.ADDRESS_CITY) || '',
+        state: sessionStorage.getItem(STORAGE_KEYS.ADDRESS_STATE) || '',
+        zipcode: sessionStorage.getItem(STORAGE_KEYS.ADDRESS_ZIP) || ''
+      };
+    }
+    return { house: '', city: '', state: '', zipcode: '' };
+  },
+
+  // Очистка полей адреса
+  clearAddressFields: () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(STORAGE_KEYS.ADDRESS_HOUSE);
+      sessionStorage.removeItem(STORAGE_KEYS.ADDRESS_CITY);
+      sessionStorage.removeItem(STORAGE_KEYS.ADDRESS_STATE);
+      sessionStorage.removeItem(STORAGE_KEYS.ADDRESS_ZIP);
     }
   }
 };

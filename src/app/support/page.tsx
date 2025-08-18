@@ -97,7 +97,7 @@ const SupportPage = () => {
               <Paper
                 elevation={3}
                 component="a"
-                href="mailto:contact@amzy.me"
+                href="mailto:?to=contact@amzy.me&subject=Support%20Request"
                 sx={{
                   p: 3,
                   borderRadius: 2,

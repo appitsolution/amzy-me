@@ -61,6 +61,25 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     }
   };
 
+  const handleKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement | HTMLDivElement>) => {
+    if (e.key === 'Backspace') {
+      e.preventDefault();
+      setCode(prev => {
+        const newCode = [...prev];
+        if (newCode[idx]) {
+          newCode[idx] = '';
+        } else if (idx > 0) {
+          newCode[idx - 1] = '';
+          inputsRef.current[idx - 1]?.focus();
+        }
+        if (error) {
+          setError('');
+        }
+        return newCode;
+      });
+    }
+  };
+
   // Автоматическая верификация при вводе всех 4 цифр
   React.useEffect(() => {
     const codeString = code.join('');
@@ -169,6 +188,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
               inputRef={el => inputsRef.current[idx] = el}
               value={code[idx]}
               onChange={e => handleChange(idx, e.target.value)}
+              onKeyDown={e => handleKeyDown(idx, e)}
               inputProps={{ 
                 maxLength: 1,
                 inputMode: "numeric",
@@ -179,13 +199,13 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
                   fontSize: isMobile ? 24 : 30, 
                   width: isMobile ? 18 : 24, 
                   height: isMobile ? 18 : 24, 
-                  borderRadius: isMobile ? 8 : 12, 
+                  borderRadius: 8, 
                   background: '#fff' 
                 } 
               }}
               sx={{ 
                 '& .MuiOutlinedInput-root': { 
-                  borderRadius: isMobile ? 1 : 2, 
+                  borderRadius: '8px', 
                   background: '#fff',
                   width:  'auto',
                   height: 'auto'
@@ -222,39 +242,35 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
             {error}
           </Typography>
         )}
-        {loading && (
-          <Typography sx={{ 
-            color: '#666', 
-            fontSize: isMobile ? 14 : 16, 
-            mb: isMobile ? 2 : 3,
-            textAlign: 'center'
-          }}>
-            {codeSent ? 'Verifying...' : 'Sending code...'}
-          </Typography>
-        )}
-        
-        {codeSent && !loading && (
+  
+        <Stack direction="row" spacing={isMobile ? 2 : 4} justifyContent="center" sx={{ mt: isMobile ? 2 : 2 }}>
           <Button 
-            onClick={handleResendCode}
+            variant="contained" 
+            onClick={handleVerify}
+            disabled={loading || code.join('').length !== 4}
             sx={{ 
-              color: '#D94F04', 
-              textDecoration: 'none', 
-              fontSize: isMobile ? 14 : 16, 
-              mb: isMobile ? 2 : 3, 
-              display: 'block', 
-              fontWeight: 500,
-              cursor: 'pointer',
-              background: 'none',
-              border: 'none',
-              '&:hover': {
-                color: '#b53e02',
-                background: 'none'
-              }
+              minWidth: isMobile ? 120 : 120, 
+              width: isMobile ? 140 : 120,
+              fontSize: isMobile ? 18 : 20, 
+              borderRadius: '8px', 
+              background: '#D94F04', 
+              color: '#fff', 
+              fontWeight: 500, 
+              '&:hover': { background: '#b53e02' },
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              textTransform: 'none',
+              px: isMobile ? 0 : 2,
+              py: isMobile ? 1.2 : 1
             }}
           >
-            Resend Code
+            {'Verify'}
+            <svg xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: '8px' }} width="8" height="14" viewBox="0 0 8 14">
+              <path d="M7.69229 7.44217L1.44229 13.6922C1.38422 13.7502 1.31528 13.7963 1.23941 13.8277C1.16354 13.8592 1.08223 13.8753 1.0001 13.8753C0.917982 13.8753 0.836664 13.8592 0.760793 13.8277C0.684922 13.7963 0.615984 13.7502 0.557916 13.6922C0.499847 13.6341 0.453784 13.5652 0.422357 13.4893C0.390931 13.4134 0.374756 13.3321 0.374756 13.25C0.374756 13.1679 0.390931 13.0865 0.422357 13.0107C0.453784 12.9348 0.499847 12.8659 0.557916 12.8078L6.36651 6.99998L0.557916 1.19217C0.44064 1.07489 0.374756 0.915834 0.374756 0.749981C0.374756 0.584129 0.44064 0.425069 0.557916 0.307794C0.675191 0.190518 0.834251 0.124634 1.0001 0.124634C1.16596 0.124634 1.32502 0.190518 1.44229 0.307794L7.69229 6.55779C7.7504 6.61584 7.7965 6.68477 7.82795 6.76064C7.85941 6.83652 7.87559 6.91785 7.87559 6.99998C7.87559 7.08212 7.85941 7.16344 7.82795 7.23932C7.7965 7.31519 7.7504 7.38412 7.69229 7.44217Z" fill={(loading || code.join('').length !== 4) ? 'gray' : 'white'}/>
+            </svg>
           </Button>
-        )}
+        </Stack>
       </Box>
     </Box>
   );

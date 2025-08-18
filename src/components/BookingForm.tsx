@@ -90,7 +90,7 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
   return (
     <Box sx={{ 
       minWidth: isMobile ? '100%' : 455, 
-      borderRadius: 2, 
+      borderRadius: '8px', 
       p: isMobile ? 3 : 4 
     }}>
       <Typography 
@@ -128,8 +128,8 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
             }}
             sx={{ 
               fontSize: isMobile ? 16 : 18, 
-              borderRadius: '2px', 
-              '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+              borderRadius: '8px', 
+              '& .MuiOutlinedInput-root': { backgroundColor: '#fff', borderRadius: '8px' },
               '& .MuiInputBase-input:-webkit-autofill': {
                 '-webkit-box-shadow': '0 0 0 30px white inset !important',
                 '-webkit-text-fill-color': '#222 !important',
@@ -170,8 +170,8 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
             }}
             sx={{ 
               fontSize: isMobile ? 16 : 18, 
-              borderRadius: '2px', 
-              '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+              borderRadius: '8px', 
+              '& .MuiOutlinedInput-root': { backgroundColor: '#fff', borderRadius: '8px' },
               '& .MuiInputBase-input:-webkit-autofill': {
                 '-webkit-box-shadow': '0 0 0 30px white inset !important',
                 '-webkit-text-fill-color': '#222 !important',
@@ -233,7 +233,7 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
             sx={{ 
               fontSize: isMobile ? 16 : 18, 
               maxWidth: isMobile ? '100%' : 220, 
-              '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+              '& .MuiOutlinedInput-root': { backgroundColor: '#fff', borderRadius: '8px' },
               '& .MuiInputBase-input:-webkit-autofill': {
                 '-webkit-box-shadow': '0 0 0 30px white inset !important',
                 '-webkit-text-fill-color': '#222 !important',
@@ -267,7 +267,7 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
             sx={{ 
               background: '#D94F04', 
               color: '#fff', 
-              borderRadius: 2, 
+              borderRadius: '8px', 
               px: isMobile ? 3 : 4, 
               py: isMobile ? 1.5 : 1.2,
               fontSize: isMobile ? 18 : 22, 
@@ -285,21 +285,6 @@ const BookingForm = ({ onContinue }: BookingFormProps) => {
             <Image src="/icons/continue.svg" alt="continue" width={22} height={22} style={{ marginLeft: 8, marginBottom: -2 }} />
           </Button>
         </Stack>
-        
-        {state.isPhoneVerified && (
-          <Typography sx={{ 
-            color: '#4caf50', 
-            fontSize: isMobile ? 14 : 16, 
-            textAlign: 'center',
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 1
-          }}>
-            ✓ Phone number verified
-          </Typography>
-        )}
       </Box>
     </Box>
   );

@@ -75,14 +75,15 @@ const getInitialState = (): BookingState => {
   const isPrivacyAccepted = storageUtils.getPrivacyAccepted();
   
   if (isVerified && phoneNumber) {
+    const savedAddress = storageUtils.getAddressFields();
     return {
       firstName: '',
       lastName: '',
       phoneNumber: phoneNumber,
-      address: '',
-      city: '',
-      state: '',
-      zipCode: '',
+      address: savedAddress.house || '',
+      city: savedAddress.city || '',
+      state: savedAddress.state || '',
+      zipCode: savedAddress.zipcode || '',
       addressSearchResults: [],
       verificationCode: '',
       isPhoneVerified: true, // Устанавливаем как верифицированный
@@ -99,14 +100,15 @@ const getInitialState = (): BookingState => {
     };
   }
   
+  const savedAddress = storageUtils.getAddressFields();
   return {
     firstName: '',
     lastName: '',
     phoneNumber: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
+    address: savedAddress.house || '',
+    city: savedAddress.city || '',
+    state: savedAddress.state || '',
+    zipCode: savedAddress.zipcode || '',
     addressSearchResults: [],
     verificationCode: '',
     isPhoneVerified: false,
@@ -132,14 +134,26 @@ function bookingReducer(state: BookingState, action: BookingAction): BookingStat
       return { ...state, lastName: action.payload };
     case 'SET_PHONE_NUMBER':
       return { ...state, phoneNumber: action.payload };
-    case 'SET_ADDRESS':
-      return { ...state, address: action.payload };
-    case 'SET_CITY':
-      return { ...state, city: action.payload };
-    case 'SET_STATE':
-      return { ...state, state: action.payload };
-    case 'SET_ZIP_CODE':
-      return { ...state, zipCode: action.payload };
+    case 'SET_ADDRESS': {
+      const newState = { ...state, address: action.payload };
+      storageUtils.setAddressFields(newState.address, newState.city, newState.state, newState.zipCode);
+      return newState;
+    }
+    case 'SET_CITY': {
+      const newState = { ...state, city: action.payload };
+      storageUtils.setAddressFields(newState.address, newState.city, newState.state, newState.zipCode);
+      return newState;
+    }
+    case 'SET_STATE': {
+      const newState = { ...state, state: action.payload };
+      storageUtils.setAddressFields(newState.address, newState.city, newState.state, newState.zipCode);
+      return newState;
+    }
+    case 'SET_ZIP_CODE': {
+      const newState = { ...state, zipCode: action.payload };
+      storageUtils.setAddressFields(newState.address, newState.city, newState.state, newState.zipCode);
+      return newState;
+    }
     case 'SET_ADDRESS_SEARCH_RESULTS':
       return { ...state, addressSearchResults: action.payload };
     case 'SET_VERIFICATION_CODE':
@@ -187,6 +201,7 @@ function bookingReducer(state: BookingState, action: BookingAction): BookingStat
       // Очищаем sessionStorage при сбросе состояния
       storageUtils.clearPhoneVerified();
       storageUtils.clearPrivacyAccepted();
+      storageUtils.clearAddressFields();
       return getInitialState();
     case 'NEXT_STEP':
       return { ...state, currentStep: Math.min(state.currentStep + 1, 5) };

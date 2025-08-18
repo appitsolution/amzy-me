@@ -34,12 +34,24 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Обработка изменения ввода
-  const handleInputChange = (value: string) => {
+  const handleInputChange = (value: string, reason?: string) => {
+    // Игнорируем программные изменения от Autocomplete (reset/clear/prop)
+    if (reason !== 'input') {
+      return;
+    }
     setInputValue(value);
     
     // Если адрес был выбран из результатов, сбрасываем флаг
     if (isAddressSelected) {
       setIsAddressSelected(false);
+    }
+    
+    // Очищаем сохранённые поля адреса ТОЛЬКО при реальном пользовательском вводе
+    if (value.trim() === '') {
+      dispatch({ type: 'SET_ADDRESS', payload: '' });
+      dispatch({ type: 'SET_CITY', payload: '' });
+      dispatch({ type: 'SET_STATE', payload: '' });
+      dispatch({ type: 'SET_ZIP_CODE', payload: '' });
     }
     
     // Очищаем предыдущий таймаут
@@ -49,6 +61,7 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
     
     // Устанавливаем новый таймаут для поиска
     timeoutRef.current = setTimeout(() => {
+      // Ищем только на пользовательский ввод
       if (value.trim().length >= 3) {
         searchAddress(value);
       } else {
@@ -68,23 +81,27 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
       setInputValue(address.address_str);
       setIsAddressSelected(true); // Отмечаем, что адрес выбран из результатов
     } else {
-      // Если адрес очищен, сбрасываем все поля адреса
-      dispatch({ type: 'SET_ADDRESS', payload: '' });
-      dispatch({ type: 'SET_CITY', payload: '' });
-      dispatch({ type: 'SET_STATE', payload: '' });
-      dispatch({ type: 'SET_ZIP_CODE', payload: '' });
-      setInputValue('');
+      // Не очищаем сохранённый адрес при системном вызове onChange(null)
       setIsAddressSelected(false);
     }
   };
 
   // Инициализация inputValue из состояния адреса только при первом рендере
   useEffect(() => {
-    console.log('AddressSearch: state.address =', state.address);
-    if (!inputValue && state.address) {
-      setInputValue(state.address);
+    if (!inputValue && (state.address || state.city || state.state || state.zipCode)) {
+      const composed = [
+        state.address,
+        [state.city, state.state].filter(Boolean).join(', '),
+        state.zipCode
+      ]
+        .filter(Boolean)
+        .join(', ')
+        .trim();
+      if (composed) {
+        setInputValue(composed);
+      }
     }
-  }, [state.address]);
+  }, [state.address, state.city, state.state, state.zipCode]);
 
   // Очистка таймаута при размонтировании
   useEffect(() => {
@@ -103,10 +120,11 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
         open={open}
         onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
+        disableClearable
         options={addressSearch.data?.data || []}
         getOptionLabel={(option) => option.address_str}
         inputValue={inputValue}
-        onInputChange={(_, newInputValue) => handleInputChange(newInputValue)}
+        onInputChange={(_, newInputValue, reason) => handleInputChange(newInputValue, reason)}
         onChange={(_, newValue) => handleAddressSelect(newValue)}
         loading={addressSearch.loading}
         sx={{
@@ -134,7 +152,8 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
                 sx={{
                   '& .MuiOutlinedInput-root': { 
                     backgroundColor: '#fff' ,
-                    color: '#222'
+                    color: '#222',
+                    borderRadius: '8px'
                   },
                   '& .MuiInputBase-input::placeholder': {
                     color: 'rgba(0, 0, 0, 0.87)',

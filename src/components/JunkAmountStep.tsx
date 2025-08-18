@@ -71,19 +71,19 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
   // Получаем данные о выбранном размере работы
   const selectedJobSize = jobSizes.data?.data?.find(job => job.id === selected);
   
-  // Обновляем цены при выборе размера работы
+  // Обновляем позиции ползунков (равные сегменты) при выборе размера работы
   React.useEffect(() => {
     if (selectedJobSize) {
-      setPrice([parseInt(selectedJobSize.price_min), parseInt(selectedJobSize.price_max)]);
+      setPrice(computeSegmentRange(selectedJobSize.id));
     }
   }, [selectedJobSize]);
 
-  // Также обновляем цены при инициализации, если в контексте уже есть выбранный размер
+  // Также обновляем позиции при инициализации, если в контексте уже есть выбранный размер
   React.useEffect(() => {
     if (state.selectedJobSize && jobSizes.data?.data) {
       const jobSize = jobSizes.data.data.find(job => job.id === state.selectedJobSize?.id);
       if (jobSize) {
-        setPrice([parseInt(jobSize.price_min), parseInt(jobSize.price_max)]);
+        setPrice(computeSegmentRange(jobSize.id));
       }
     }
   }, [state.selectedJobSize, jobSizes.data]);
@@ -91,6 +91,20 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
   // Статичные min/max для ползунка (общий диапазон всех размеров работ)
   const staticMin = 95; // Минимальная цена из всех вариантов
   const staticMax = 1480; // Максимальная цена из всех вариантов
+  const totalSegments = 5;
+  const segmentWidth = (staticMax - staticMin) / totalSegments;
+
+  const computeSegmentRange = (id: string | undefined) => {
+    const parsed = parseInt(id || '1', 10);
+    const clampedIndex = Math.min(Math.max(isNaN(parsed) ? 1 : parsed, 1), totalSegments);
+    const start = Math.round(staticMin + (clampedIndex - 1) * segmentWidth);
+    const end = Math.round(staticMin + clampedIndex * segmentWidth);
+    return [start, end] as [number, number];
+  };
+
+  const segmentMarks = Array.from({ length: totalSegments + 1 }, (_, i) => ({
+    value: Math.round(staticMin + i * segmentWidth)
+  }));
 
   // Функция валидации
   const validateFields = () => {
@@ -98,12 +112,12 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
     let isValid = true;
 
     if (!state.notes.trim()) {
-      newErrors.notes = 'Message to Contractor is required.';
+      newErrors.notes = 'Field is required.';
       isValid = false;
     }
 
     if (!state.notes2.trim()) {
-      newErrors.notes2 = 'Message to Contractor is required.';
+      newErrors.notes2 = 'Field is required.';
       isValid = false;
     }
 
@@ -204,7 +218,12 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
             step={10}
             disabled={true} // Заблокирован
             valueLabelDisplay="on"
-            valueLabelFormat={(value) => `$${value}`}
+            valueLabelFormat={(value, index) => {
+              if (selectedJobSize) {
+                return index === 0 ? `$${parseInt(selectedJobSize.price_min)}` : `$${parseInt(selectedJobSize.price_max)}`;
+              }
+              return `$${value}`;
+            }}
             sx={{ 
               color: '#D94F04',
               '& .MuiSlider-thumb': {
@@ -233,7 +252,7 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
                 bottom: '-60px'
               }
             }}
-            marks={[]}
+            marks={segmentMarks}
             disableSwap
           />
         </Box>
@@ -248,7 +267,7 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
                 error={!!errors.notes}
                 helperText={errors.notes}
                 sx={{ 
-                  '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+                  '& .MuiOutlinedInput-root': { backgroundColor: '#fff', borderRadius: '8px' },
                   '& .MuiInputBase-input:-webkit-autofill': {
                     '-webkit-box-shadow': '0 0 0 30px white inset !important',
                     '-webkit-text-fill-color': '#222 !important',
@@ -277,7 +296,7 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
                 error={!!errors.notes2}
                 helperText={errors.notes2}
                 sx={{ 
-                  '& .MuiOutlinedInput-root': { backgroundColor: '#fff' },
+                  '& .MuiOutlinedInput-root': { backgroundColor: '#fff', borderRadius: '8px' },
                   '& .MuiInputBase-input:-webkit-autofill': {
                     '-webkit-box-shadow': '0 0 0 30px white inset !important',
                     '-webkit-text-fill-color': '#222 !important',
@@ -313,7 +332,7 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
               minWidth: isMobile ? 120 : 120, 
               width: isMobile ? 140 : 120,
               fontSize: isMobile ? 16 : 20, 
-              borderRadius: 2, 
+              borderRadius: '8px', 
               color: '#BDBDBD', 
               borderColor: '#E0E0E0',
               textTransform: 'none', 
@@ -338,7 +357,7 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
               minWidth: isMobile ? 120 : 120, 
               width: isMobile ? 140 : 120,
               fontSize: isMobile ? 16 : 20, 
-              borderRadius: 2, 
+              borderRadius: '8px', 
               background: '#D94F04', 
               color: '#fff', 
               fontWeight: 500, 
