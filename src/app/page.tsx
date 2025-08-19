@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BookingForm from '@/components/BookingForm';
@@ -20,6 +21,17 @@ function HomePageContent() {
   const { state } = useBooking();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Однократно применяем query-параметр step и очищаем его из URL
+  useEffect(() => {
+    const stepParam = searchParams.get('step') as Step | null;
+    if (stepParam) {
+      setCurrentStep(stepParam);
+      router.replace('/', { scroll: false });
+    }
+  }, [searchParams, router]);
 
   // Проверяем статус верификации при изменении состояния
   useEffect(() => {

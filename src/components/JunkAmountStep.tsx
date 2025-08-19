@@ -23,13 +23,7 @@ interface JunkAmountStepProps {
 }
 
 // Маппинг для соответствия API данных с UI
-const loadMapping = {
-  '1': { value: '1', label: 'Mini', icon: '/icons/mini.svg' },
-  '2': { value: '2', label: 'Pickup load', icon: '/icons/pickup.svg' },
-  '3': { value: '3', label: 'Pickup load x2', icon: '/icons/pickup2.svg' },
-  '4': { value: '4', label: 'Dump Truck', icon: '/icons/dump.svg' },
-  '5': { value: '5', label: 'Dump Truck +', icon: '/icons/dump_truck.svg' },
-};
+import { jobSizeMapping as loadMapping } from '@/utils/jobSizeMapping';
 
 export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepProps) {
   const { state, dispatch } = useBooking();
@@ -67,6 +61,19 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
       }
     }
   }, [jobSizes.data, state.selectedJobSize?.id]);
+
+  // Если пользователь не менял выбор и данные размеров загружены —
+  // сохраняем дефолтный вариант (Pick Up, id: '2') в контекст
+  React.useEffect(() => {
+    if (jobSizes.data?.data && !state.selectedJobSize) {
+      const defaultId = '2';
+      const jobDefault = jobSizes.data.data.find(job => job.id === defaultId) || jobSizes.data.data[0];
+      if (jobDefault) {
+        setSelected(jobDefault.id);
+        dispatch({ type: 'SET_SELECTED_JOB_SIZE', payload: jobDefault });
+      }
+    }
+  }, [jobSizes.data, state.selectedJobSize, dispatch]);
 
   // Получаем данные о выбранном размере работы
   const selectedJobSize = jobSizes.data?.data?.find(job => job.id === selected);
@@ -258,7 +265,7 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
         </Box>
         <Box sx={{ textAlign: 'left', mb: isMobile ? 3 : 2 }}>
           <Typography sx={{ fontWeight: 600, fontSize: isMobile ? 14 : 16, mb: 1, color: '#323232' }}>Message to contractor</Typography>
-          <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 2 : 2}>
+          <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 2 : 4}>
             <Stack spacing={2} sx={{ flex: isMobile ? 'none' : 2 }}>
               <TextField 
                 fullWidth 
@@ -320,7 +327,7 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
               />
             </Stack>
             <Box sx={{ flex: isMobile ? 'none' : 1 }}>
-              <PhotoUpload maxPhotos={5} maxFileSize={10} />
+              <PhotoUpload maxPhotos={8} maxFileSize={10} />
             </Box>
           </Stack>
         </Box>

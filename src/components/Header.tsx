@@ -7,6 +7,7 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useBooking } from '../context/BookingContext';
 import type { BookingAction } from '../context/BookingContext';
+import Typography from '@mui/material/Typography';
 
 const Header = () => {
   const theme = useTheme();
@@ -29,7 +30,7 @@ const Header = () => {
         px: isMobile ? 2 : { xs: 2, md: 5 }, 
         py: isMobile ? 2 : 3 
       }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center' }} >
+        <Link href="/?step=homepage" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }} >
           <Image 
             src="/logo.svg" 
             alt="AMZY Logo" 

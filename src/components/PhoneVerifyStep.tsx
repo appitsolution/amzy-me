@@ -8,7 +8,7 @@ import Link from '@mui/material/Link';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useBooking } from '../context/BookingContext';
-import { formatPhoneNumber, cleanPhoneNumber } from '../utils/validation';
+import { formatPhoneNumber, normalizeUsPhoneNumber } from '../utils/validation';
 import { useApi } from '../hooks/useApi';
 
 interface PhoneVerifyStepProps {
@@ -33,7 +33,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       if (!state.isPhoneVerified && state.phoneNumber && !codeSent) {
         setLoading(true);
         try {
-          const cleanPhone = cleanPhoneNumber(state.phoneNumber);
+          const cleanPhone = normalizeUsPhoneNumber(state.phoneNumber);
           await sendPhoneAuthCode(cleanPhone);
           setCodeSent(true);
         } catch (error) {
@@ -104,7 +104,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     setError('');
     
     try {
-      const cleanPhone = cleanPhoneNumber(state.phoneNumber);
+      const cleanPhone = normalizeUsPhoneNumber(state.phoneNumber);
       const result = await checkPhoneVerification(cleanPhone, codeString);
       
       if (result.status === 1) {
@@ -125,7 +125,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     setLoading(true);
     setError('');
     try {
-      const cleanPhone = cleanPhoneNumber(state.phoneNumber);
+      const cleanPhone = normalizeUsPhoneNumber(state.phoneNumber);
       await sendPhoneAuthCode(cleanPhone);
       setCodeSent(true);
       setCode(['', '', '', '']); // Очищаем поле ввода
@@ -189,10 +189,16 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
               value={code[idx]}
               onChange={e => handleChange(idx, e.target.value)}
               onKeyDown={e => handleKeyDown(idx, e)}
+              name={`otp-digit-${idx}`}
+              autoComplete="off"
               inputProps={{ 
                 maxLength: 1,
                 inputMode: "numeric",
                 pattern: "[0-9]*",
+                autoComplete: 'off',
+                autoCorrect: 'off',
+                autoCapitalize: 'off',
+                spellCheck: false,
                 style: { 
                   textAlign: 'center', 
                   border: 'none', 

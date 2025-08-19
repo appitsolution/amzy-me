@@ -19,7 +19,7 @@ interface PhotoUploadProps {
 }
 
 export const PhotoUpload: React.FC<PhotoUploadProps> = ({
-  maxPhotos = 5,
+  maxPhotos = 8,
   maxFileSize = 10
 }) => {
   const { state, dispatch } = useBooking();
@@ -242,11 +242,11 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
                onClick={handleAddClick}
                >
                  <Box textAlign="center">
-                   <AddIcon sx={{ 
+                   {/* <AddIcon sx={{ 
                      fontSize: 60, 
                      color: '#BDBDBD',
                      mb: 2
-                   }} />
+                   }} /> */}
                    <Typography variant="body2" color="text.secondary" sx={{ 
                      fontSize: 16,
                      color: '#666'
@@ -257,6 +257,27 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
                </Box>
              )}
            </Box>
+
+           {/* Всегда видимая кнопка добавления фото */}
+           {state.photos.length < maxPhotos && (
+             <IconButton
+               onClick={handleAddClick}
+               sx={{
+                 position: 'absolute',
+                 top: 8,
+                 left: 8,
+                 zIndex: 2,
+                 backgroundColor: 'rgba(255,255,255,0.9)',
+                 color: '#D94F04',
+                 '&:hover': {
+                   backgroundColor: 'rgba(255,255,255,1)',
+                 }
+               }}
+               aria-label="Add photo"
+             >
+               <AddIcon />
+             </IconButton>
+           )}
 
            {/* Навигационные кнопки */}
            {(state.photos.length > 0 || state.photos.length < maxPhotos) && (
@@ -325,6 +346,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
         type="file"
         multiple
         accept="image/*"
+        capture={isMobile ? 'environment' : undefined}
         onChange={handleFileSelect}
         style={{ display: 'none' }}
       />

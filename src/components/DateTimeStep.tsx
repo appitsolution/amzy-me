@@ -17,7 +17,8 @@ import { useBooking } from '../context/BookingContext';
 import { useApi } from '../hooks/useApi';
 import { apiService } from '../services/api';
 import { getTimezoneOffsetHours } from '../utils/dateUtils';
-import { cleanPhoneNumber } from '../utils/validation';
+import { jobSizeMapping } from '@/utils/jobSizeMapping';
+import { normalizeUsPhoneNumber } from '../utils/validation';
 
 interface DateTimeStepProps {
   onContinue: () => void;
@@ -264,7 +265,7 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
       const timestamp = Math.floor(selectedDateTime.valueOf() / 1000); // Конвертируем в секунды
 
       const request = {
-        phone_number: cleanPhoneNumber(state.phoneNumber),
+        phone_number: normalizeUsPhoneNumber(state.phoneNumber),
         firstname: state.firstName,
         lastname: state.lastName,
         house: state.address,
@@ -305,7 +306,7 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center">
           <Typography sx={{ color: '#bdbdbd', fontSize: isMobile ? 16 : 22, fontWeight: 500 }}>
-            {state.selectedJobSize?.name || 'Select job size'}
+            {state.selectedJobSize ? (jobSizeMapping[state.selectedJobSize.id]?.label || state.selectedJobSize.name) : 'Select job size'}
           </Typography>
           <IconButton size="small" sx={{ color: '#bdbdbd' }} onClick={onBack}>
             <EditIcon />
@@ -392,7 +393,7 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
                       bgcolor: t.status === 'free' ? '#5a8c13' : t.status === 'medium' ? '#e6c200' : t.status === 'busy' ? '#b53e02' : statusColor.disabled,
                       opacity: 1,
                     },
-                    border: selectedTime === t.label ? '2px solid #222' : 'none',
+                    border: 'none',
                     transition: 'opacity 0.2s ease-in-out',
                     textTransform: 'none',
                     padding: isMobile ? '8px 4px' : '12px 8px',

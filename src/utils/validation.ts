@@ -92,6 +92,16 @@ export const cleanPhoneNumber = (phone: string): string => {
   return phone.replace(/\D/g, '');
 };
 
+// Нормализация номера телефона для отправки в API (США):
+// Если номер в формате +1XXXXXXXXXX (11 цифр и начинается с 1) — убираем ведущую 1
+export const normalizeUsPhoneNumber = (phone: string): string => {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return digits.slice(1);
+  }
+  return digits;
+};
+
 // Проверка, является ли строка пустой или содержит только пробелы
 export const isEmpty = (value: string): boolean => {
   return !value || value.trim().length === 0;
