@@ -50,6 +50,19 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({ selectedDate }) => {
   };
 
   const handleTimeSelect = (hour: number) => {
+    // Проверяем, что данные загружены и слот доступен
+    if (loading || contractorAvailability.loading) {
+      return;
+    }
+    
+    const availabilityData = contractorAvailability.data?.data || [];
+    const selectedSlot = availabilityData.find(slot => slot.hour === hour);
+    
+    if (!selectedSlot || selectedSlot.percentage <= 0) {
+      console.warn('Selected time slot is not available');
+      return;
+    }
+    
     dispatch({ type: 'SET_SELECTED_TIME', payload: hour });
   };
 
@@ -128,7 +141,7 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({ selectedDate }) => {
               variant={isTimeSelected(hourData.hour) ? 'contained' : 'outlined'}
               color={getAvailabilityColor(hourData.percentage) as 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning'}
               fullWidth
-              disabled={!isTimeAvailable(hourData.percentage)}
+              disabled={!isTimeAvailable(hourData.percentage) || loading || contractorAvailability.loading}
               onClick={() => handleTimeSelect(hourData.hour)}
               sx={{
                 minHeight: 60,

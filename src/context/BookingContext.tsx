@@ -181,6 +181,10 @@ function bookingReducer(state: BookingState, action: BookingAction): BookingStat
     case 'SET_NOTES2':
       return { ...state, notes2: action.payload };
     case 'ADD_PHOTO':
+      // Проверяем лимит фотографий (максимум 8)
+      if (state.photos.length >= 8) {
+        return state; // Не добавляем, если достигнут лимит
+      }
       return { ...state, photos: [...state.photos, action.payload] };
     case 'REMOVE_PHOTO':
       return { 

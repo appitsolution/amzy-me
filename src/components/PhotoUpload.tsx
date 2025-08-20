@@ -45,23 +45,39 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const [isSelectingFile, setIsSelectingFile] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files) return;
+    if (!files) {
+      setIsSelectingFile(false);
+      return;
+    }
 
     setError(null);
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      // Проверяем количество фотографий
-      if (state.photos.length >= maxPhotos) {
-        setError(`Maximum number of photos: ${maxPhotos}`);
-        break;
+    // Проверяем общее количество файлов, которые можно добавить
+    const availableSlots = maxPhotos - state.photos.length;
+    if (availableSlots <= 0) {
+      setError(`Maximum number of photos: ${maxPhotos}`);
+      // Очищаем input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
+      if (cameraInputRef.current) {
+        cameraInputRef.current.value = '';
+      }
+      return;
+    }
+
+    // Ограничиваем количество файлов для обработки
+    const filesToProcess = Math.min(files.length, availableSlots);
+    let addedCount = 0;
+
+    for (let i = 0; i < filesToProcess; i++) {
+      const file = files[i];
 
       // Проверяем валидность файла
       if (!validateImageFile(file)) {
@@ -71,17 +87,30 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 
       // Добавляем файл
       dispatch({ type: 'ADD_PHOTO', payload: file });
-      // Переходим к новому фото
-      setCurrentSlide(state.photos.length);
+      addedCount++;
+    }
+
+    // Показываем предупреждение, если не все файлы были добавлены
+    if (files.length > availableSlots) {
+      setError(`Only ${availableSlots} photos were added. Maximum limit is ${maxPhotos} photos.`);
+    }
+
+    // Переходим к последнему добавленному фото
+    if (addedCount > 0) {
+      setCurrentSlide(state.photos.length + addedCount - 1);
     }
 
     // Очищаем input для возможности повторной загрузки того же файла
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    if (cameraInputRef.current) {
-      cameraInputRef.current.value = '';
-    }
+    // Используем setTimeout для предотвращения проблем с браузером
+    setTimeout(() => {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      if (cameraInputRef.current) {
+        cameraInputRef.current.value = '';
+      }
+      setIsSelectingFile(false);
+    }, 0);
   };
 
   const handleRemovePhoto = (index: number) => {
@@ -94,21 +123,56 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   };
 
   const handleAddClick = () => {
+    // Проверяем, не достигнут ли лимит
+    if (state.photos.length >= maxPhotos) {
+      setError(`Maximum number of photos: ${maxPhotos}`);
+      return;
+    }
+
+    if (isSelectingFile) return; // Предотвращаем повторные вызовы
+
     if (isMobile) {
       setShowPhotoOptions(true);
     } else {
+      setIsSelectingFile(true);
       fileInputRef.current?.click();
     }
   };
 
   const handleCameraClick = () => {
+    // Проверяем, не достигнут ли лимит
+    if (state.photos.length >= maxPhotos) {
+      setError(`Maximum number of photos: ${maxPhotos}`);
+      setShowPhotoOptions(false);
+      return;
+    }
+    
+    if (isSelectingFile) return; // Предотвращаем повторные вызовы
+    
+    setIsSelectingFile(true);
     setShowPhotoOptions(false);
-    cameraInputRef.current?.click();
+    // Добавляем небольшую задержку, чтобы диалог успел закрыться
+    setTimeout(() => {
+      cameraInputRef.current?.click();
+    }, 100);
   };
 
   const handleGalleryClick = () => {
+    // Проверяем, не достигнут ли лимит
+    if (state.photos.length >= maxPhotos) {
+      setError(`Maximum number of photos: ${maxPhotos}`);
+      setShowPhotoOptions(false);
+      return;
+    }
+    
+    if (isSelectingFile) return; // Предотвращаем повторные вызовы
+    
+    setIsSelectingFile(true);
     setShowPhotoOptions(false);
-    fileInputRef.current?.click();
+    // Добавляем небольшую задержку, чтобы диалог успел закрыться
+    setTimeout(() => {
+      fileInputRef.current?.click();
+    }, 100);
   };
 
   const handleNextSlide = () => {
@@ -204,7 +268,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
               </Box>
             ))}
 
-            {state.photos.length < maxPhotos && (
+            {state.photos.length < maxPhotos ? (
               <Box sx={{ width: '100%', aspectRatio: '1' }}>
                 <Card
                   sx={{
@@ -231,7 +295,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
                   }} />
                 </Card>
               </Box>
-            )}
+              ) : null}
           </Box>
         </Box>
              ) : (
@@ -337,7 +401,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
              )}
            </Box>
 
-           {/* Всегда видимая кнопка добавления фото */}
+           {/* Кнопка добавления фото - видна только если не достигнут лимит */}
            {state.photos.length < maxPhotos && (
              <IconButton
                onClick={handleAddClick}
@@ -443,7 +507,10 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
       {/* Модальное окно для выбора опций на мобильных устройствах */}
       <Dialog 
         open={showPhotoOptions} 
-        onClose={() => setShowPhotoOptions(false)}
+        onClose={() => {
+          setShowPhotoOptions(false);
+          setIsSelectingFile(false);
+        }}
         maxWidth="xs"
         fullWidth
       >
@@ -484,7 +551,10 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 1 }}>
           <Button 
-            onClick={() => setShowPhotoOptions(false)}
+            onClick={() => {
+              setShowPhotoOptions(false);
+              setIsSelectingFile(false);
+            }}
             sx={{ 
               color: '#666',
               '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
