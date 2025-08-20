@@ -326,11 +326,21 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
                 variant="outlined" 
               />
             </Stack>
-            <Box sx={{ flex: isMobile ? 'none' : 1 }}>
-              <PhotoUpload maxPhotos={8} maxFileSize={10} />
-            </Box>
+            {!isMobile && (
+              <Box sx={{ flex: 1 }}>
+                <PhotoUpload maxPhotos={8} maxFileSize={10} />
+              </Box>
+            )}
           </Stack>
         </Box>
+        
+        {/* Секция фотографий для мобильных устройств */}
+        {isMobile && (
+          <Box sx={{ textAlign: 'left', mb: 3 }}>
+            <Typography sx={{ fontWeight: 600, fontSize: 14, mb: 2, color: '#323232' }}>Photos</Typography>
+            <PhotoUpload maxPhotos={8} maxFileSize={10} />
+          </Box>
+        )}
         <Stack direction="row" spacing={isMobile ? 2 : 4} justifyContent="center" sx={{ mt: isMobile ? 3 : 4 }}>
           <Button 
             variant="outlined" 

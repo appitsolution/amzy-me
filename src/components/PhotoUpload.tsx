@@ -1,13 +1,30 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Box,
   Typography,
   IconButton,
   Card,
   CardMedia,
-  Alert
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
+import { 
+  Add as AddIcon, 
+  Delete as DeleteIcon, 
+  ChevronLeft as ChevronLeftIcon, 
+  ChevronRight as ChevronRightIcon,
+  CameraAlt as CameraIcon,
+  PhotoLibrary as GalleryIcon
+} from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useBooking } from '../context/BookingContext';
@@ -24,8 +41,10 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 }) => {
   const { state, dispatch } = useBooking();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -60,27 +79,55 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = '';
+    }
   };
 
   const handleRemovePhoto = (index: number) => {
     dispatch({ type: 'REMOVE_PHOTO', payload: index });
     // Обновляем текущий слайд если нужно
     if (currentSlide >= state.photos.length - 1) {
-      setCurrentSlide(Math.max(0, state.photos.length - 2));
+      const newTotalSlides = (state.photos.length - 1) + ((state.photos.length - 1) < maxPhotos ? 1 : 0);
+      setCurrentSlide(Math.max(0, newTotalSlides - 1));
     }
   };
 
   const handleAddClick = () => {
+    if (isMobile) {
+      setShowPhotoOptions(true);
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleCameraClick = () => {
+    setShowPhotoOptions(false);
+    cameraInputRef.current?.click();
+  };
+
+  const handleGalleryClick = () => {
+    setShowPhotoOptions(false);
     fileInputRef.current?.click();
   };
 
   const handleNextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % (state.photos.length + 1));
+    const totalSlides = state.photos.length + (state.photos.length < maxPhotos ? 1 : 0);
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
   };
 
   const handlePrevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + state.photos.length + 1) % (state.photos.length + 1));
+    const totalSlides = state.photos.length + (state.photos.length < maxPhotos ? 1 : 0);
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
+
+  // Эффект для корректировки currentSlide при изменении количества фотографий
+  useEffect(() => {
+    const totalSlides = state.photos.length + (state.photos.length < maxPhotos ? 1 : 0);
+    if (currentSlide >= totalSlides) {
+      setCurrentSlide(Math.max(0, totalSlides - 1));
+    }
+  }, [state.photos.length, currentSlide, maxPhotos]);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -99,79 +146,93 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
       )}
 
       {isMobile ? (
-        // Мобильная версия - горизонтальный ряд
-        <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 1 }}>
-          {state.photos.map((photo, index) => (
-            <Box key={index} sx={{ flexShrink: 0 }}>
-              <Card sx={{ 
-                borderRadius: 2,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                overflow: 'hidden',
-                width: 80,
-                height: 80
-              }}>
-                <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-                  <CardMedia
-                    component="img"
-                    sx={{ 
-                      width: '100%', 
-                      height: '100%', 
-                      objectFit: 'cover' 
-                    }}
-                    image={URL.createObjectURL(photo)}
-                    alt={`Photo ${index + 1}`}
-                  />
-                  <IconButton
-                    size="small"
-                    sx={{
-                      position: 'absolute',
-                      top: 2,
-                      right: 2,
-                      backgroundColor: 'rgba(255,255,255,0.9)',
-                      color: '#D94F04',
-                      width: 20,
-                      height: 20,
-                      '&:hover': {
-                        backgroundColor: 'rgba(255,255,255,1)',
-                      }
-                    }}
-                    onClick={() => handleRemovePhoto(index)}
-                  >
-                    <DeleteIcon sx={{ fontSize: 12 }} />
-                  </IconButton>
-                </Box>
-              </Card>
-            </Box>
-          ))}
-
-          {state.photos.length < maxPhotos && (
-            <Box sx={{ flexShrink: 0 }}>
-              <Card
-                sx={{
-                  width: 80,
-                  height: 80,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '2px dashed',
-                  borderColor: '#E0E0E0',
+        // Мобильная версия - сетка с фиксированной шириной контейнера
+        <Box sx={{ 
+          width: '100%', 
+          maxWidth: '100%',
+          overflow: 'hidden',
+          px: 1
+        }}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(70px, 80px))',
+            gap: 1,
+            justifyContent: 'center',
+            width: '100%',
+            maxWidth: '100%'
+          }}>
+            {state.photos.map((photo, index) => (
+              <Box key={index} sx={{ width: '100%', aspectRatio: '1' }}>
+                <Card sx={{ 
                   borderRadius: 2,
-                  cursor: 'pointer',
-                  backgroundColor: '#fff',
-                  '&:hover': {
-                    borderColor: '#D94F04',
-                    backgroundColor: '#fff5f0'
-                  }
-                }}
-                onClick={handleAddClick}
-              >
-                <AddIcon sx={{ 
-                  fontSize: 24, 
-                  color: '#BDBDBD'
-                }} />
-              </Card>
-            </Box>
-          )}
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  overflow: 'hidden',
+                  width: '100%',
+                  height: '100%'
+                }}>
+                  <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+                    <CardMedia
+                      component="img"
+                      sx={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover' 
+                      }}
+                      image={URL.createObjectURL(photo)}
+                      alt={`Photo ${index + 1}`}
+                    />
+                    <IconButton
+                      size="small"
+                      sx={{
+                        position: 'absolute',
+                        top: 2,
+                        right: 2,
+                        backgroundColor: 'rgba(255,255,255,0.9)',
+                        color: '#D94F04',
+                        width: 20,
+                        height: 20,
+                        '&:hover': {
+                          backgroundColor: 'rgba(255,255,255,1)',
+                        }
+                      }}
+                      onClick={() => handleRemovePhoto(index)}
+                    >
+                      <DeleteIcon sx={{ fontSize: 12 }} />
+                    </IconButton>
+                  </Box>
+                </Card>
+              </Box>
+            ))}
+
+            {state.photos.length < maxPhotos && (
+              <Box sx={{ width: '100%', aspectRatio: '1' }}>
+                <Card
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px dashed',
+                    borderColor: '#E0E0E0',
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    backgroundColor: '#fff',
+                    '&:hover': {
+                      borderColor: '#D94F04',
+                      backgroundColor: '#fff5f0'
+                    }
+                  }}
+                  onClick={handleAddClick}
+                >
+                  <AddIcon sx={{ 
+                    fontSize: 24, 
+                    color: '#BDBDBD'
+                  }} />
+                </Card>
+              </Box>
+            )}
+          </Box>
         </Box>
              ) : (
          // ПК версия - настоящий слайдер
@@ -222,8 +283,8 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
                    </Typography>
                  </Box>
                </Box>
-             ) : (
-               // Показываем кнопку добавления
+             ) : state.photos.length < maxPhotos ? (
+               // Показываем кнопку добавления только если не достигнут лимит
                <Box sx={{ 
                  width: '100%', 
                  height: 140, 
@@ -254,6 +315,24 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
                      Add Photo
                    </Typography>
                  </Box>
+               </Box>
+             ) : (
+               // Если достигнут лимит, показываем пустой слайд или возвращаемся к последнему фото
+               <Box sx={{ 
+                 width: '100%', 
+                 height: 140, 
+                 display: 'flex', 
+                 alignItems: 'center', 
+                 justifyContent: 'center',
+                 backgroundColor: '#f5f5f5',
+                 border: '1px solid #e0e0e0'
+               }}>
+                 <Typography variant="body2" color="text.secondary" sx={{ 
+                   fontSize: 14,
+                   color: '#999'
+                 }}>
+                   Maximum photos reached
+                 </Typography>
                </Box>
              )}
            </Box>
@@ -341,15 +420,80 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
          </Box>
        )}
 
+      {/* Input для галереи (без capture) */}
       <input
         ref={fileInputRef}
         type="file"
         multiple
         accept="image/*"
-        capture={isMobile ? 'environment' : undefined}
         onChange={handleFileSelect}
         style={{ display: 'none' }}
       />
+
+      {/* Input для камеры (с capture) */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileSelect}
+        style={{ display: 'none' }}
+      />
+
+      {/* Модальное окно для выбора опций на мобильных устройствах */}
+      <Dialog 
+        open={showPhotoOptions} 
+        onClose={() => setShowPhotoOptions(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
+          <Typography variant="h6" sx={{ color: '#333' }}>
+            Add Photo
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          <List sx={{ p: 0 }}>
+            <ListItem disablePadding>
+              <ListItemButton onClick={handleCameraClick} sx={{ py: 2 }}>
+                <ListItemIcon>
+                  <CameraIcon sx={{ color: '#D94F04', fontSize: 28 }} />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="Take Photo" 
+                  secondary="Use camera"
+                  primaryTypographyProps={{ sx: { fontSize: 16, fontWeight: 500 } }}
+                  secondaryTypographyProps={{ sx: { fontSize: 14 } }}
+                />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton onClick={handleGalleryClick} sx={{ py: 2 }}>
+                <ListItemIcon>
+                  <GalleryIcon sx={{ color: '#D94F04', fontSize: 28 }} />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="Choose from Gallery" 
+                  secondary="Select existing photo"
+                  primaryTypographyProps={{ sx: { fontSize: 16, fontWeight: 500 } }}
+                  secondaryTypographyProps={{ sx: { fontSize: 14 } }}
+                />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 1 }}>
+          <Button 
+            onClick={() => setShowPhotoOptions(false)}
+            sx={{ 
+              color: '#666',
+              '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }; 
