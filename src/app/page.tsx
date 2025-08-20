@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -17,7 +17,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 type Step = 'homepage' | 'privacystep' | 'phoneverifystep' | 'junkamountstep' | 'datetimestep' | 'bookingsubmitted';
 
 function HomePageContent() {
-  const [currentStep, setCurrentStep] = useState<Step>('homepage');
+  const [currentStep, setCurrentStep] = useState<Step>('bookingsubmitted');
   const { state } = useBooking();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -214,7 +214,9 @@ function HomePageContent() {
 export default function HomePage() {
   return (
     <BookingProvider>
-      <HomePageContent />
+      <Suspense fallback={null}>
+        <HomePageContent />
+      </Suspense>
     </BookingProvider>
   );
 }

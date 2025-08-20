@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { FaApple } from 'react-icons/fa';
 
 export default function BookingSubmitted() {
   const theme = useTheme();
@@ -21,7 +22,9 @@ export default function BookingSubmitted() {
         <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 2 : 4} justifyContent="center" alignItems="center" sx={{ mt: isMobile ? 2 : 4 }}>
           <Box component="a" href="https://apps.apple.com/us/app/amzy/id1206857095" target="_blank" rel="noopener noreferrer" sx={{ display: 'inline-block', border: '2px solid #222', borderRadius: 2, px: isMobile ? 1 : 2.5, py: isMobile ? 0.8 : 1, bgcolor: '#fff', color: '#222', fontWeight: 600, fontSize: isMobile ? 16 : 22, textDecoration: 'none', minWidth: isMobile ? '100%' : 200 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-            <Box component="span" sx={{ fontSize: 36, mr: 1 }}></Box>
+            <Box component="span" sx={{ display: 'flex', alignItems: 'center', mr: 1 }}>
+                <FaApple size={isMobile ? 24 : 28} aria-label="Apple" />
+            </Box>
               <Box>
                 <Typography sx={{ fontSize: isMobile ? 10 : 12, fontWeight: 400, lineHeight: 1 }}>Download on the</Typography>
                 <Typography sx={{ fontSize: isMobile ? 18 : 22, fontWeight: 600, lineHeight: 1 }}>App Store</Typography>
@@ -30,7 +33,7 @@ export default function BookingSubmitted() {
           </Box>
           <Box component="a" href="#" sx={{ display: 'inline-block', border: '2px solid #222', borderRadius: 2, px: isMobile ? 2 : 2.5, py: isMobile ? 1.5 : 1, bgcolor: '#fff', color: '#222', fontWeight: 600, fontSize: isMobile ? 16 : 22, textDecoration: 'none', minWidth: isMobile ? '100%' : 200, maxWidth: isMobile ? 80 : 'none' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-              <Box component="span" sx={{ fontSize: isMobile ? 28 : 36, mr: 1 }}>
+              <Box component="span" sx={{ fontSize: isMobile ? 28 : 18, mr: 1 }}>
                 <svg fill="#000000" width={isMobile ? "18px" : "22px"} height={isMobile ? "18px" : "22px"} viewBox="-1 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="m3.751.61 13.124 7.546-2.813 2.813zm-2.719-.61 12.047 12-12.046 12c-.613-.271-1.033-.874-1.033-1.575 0-.023 0-.046.001-.068v.003-20.719c-.001-.019-.001-.042-.001-.065 0-.701.42-1.304 1.022-1.571l.011-.004zm19.922 10.594c.414.307.679.795.679 1.344 0 .022 0 .043-.001.065v-.003c.004.043.007.094.007.145 0 .516-.25.974-.636 1.258l-.004.003-2.813 1.593-3.046-2.999 3.047-3.047zm-17.203 12.796 10.312-10.359 2.813 2.813z"/>
                 </svg>
