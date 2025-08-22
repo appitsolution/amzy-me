@@ -225,9 +225,9 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
       
       // Определяем статус на основе процента доступности
       let status = 'disabled';
-      if (percentage > 70) status = 'free';
-      else if (percentage > 30) status = 'medium';
-      else if (percentage > 0) status = 'busy';
+      if (percentage >= 50) status = 'free';
+      else if (percentage >= 20) status = 'medium';
+      else if (percentage >= 10) status = 'busy';
       
       // Форматируем время
       const timeLabel = hour === 0 ? '12 AM' : 

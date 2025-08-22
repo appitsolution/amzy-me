@@ -92,6 +92,7 @@ export interface AddAppointmentRequest {
   notes: string;
   photos: File[];
   start_date: number; // timestamp
+  timezone_offset: number;
 }
 
 export interface AddAppointmentResponse {
@@ -200,6 +201,7 @@ export const apiService = {
       job_size_id: request.job_size_id,
       notes: request.notes,
       start_date: request.start_date.toString(),
+      timezone_offset: request.timezone_offset.toString(),
     };
     
     // Добавляем фото в FormData отдельно

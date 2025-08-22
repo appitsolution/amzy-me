@@ -206,7 +206,6 @@ export default function JunkAmountStep({ onContinue, onBack }: JunkAmountStepPro
                       }} 
                     />
                     <Typography sx={{ fontSize: isMobile ? 12 : 14 }} color="#323232">{loadInfo.label}</Typography>
-                    <Typography sx={{ fontSize: isMobile ? 10 : 12 }} color="#666">${job.price_estimate}</Typography>
                   </Stack>
                 }
                 sx={{ 

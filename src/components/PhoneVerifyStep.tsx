@@ -80,6 +80,28 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text');
+    const digits = pastedData.replace(/\D/g, '').slice(0, 4); // Извлекаем только цифры и ограничиваем до 4 символов
+    
+    if (digits.length === 4) {
+      const newCode = [...code];
+      for (let i = 0; i < 4; i++) {
+        newCode[i] = digits[i];
+      }
+      setCode(newCode);
+      
+      // Фокусируемся на последнем поле
+      inputsRef.current[3]?.focus();
+      
+      // Очищаем ошибку при вставке
+      if (error) {
+        setError('');
+      }
+    }
+  };
+
   // Автоматическая верификация при вводе всех 4 цифр
   React.useEffect(() => {
     const codeString = code.join('');
@@ -189,6 +211,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
               value={code[idx]}
               onChange={e => handleChange(idx, e.target.value)}
               onKeyDown={e => handleKeyDown(idx, e)}
+              onPaste={handlePaste}
               name={`otp-digit-${idx}`}
               autoComplete="off"
               inputProps={{ 
