@@ -94,7 +94,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>, startIdx: number) => {
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement | HTMLDivElement>, startIdx: number) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text');
     const digits = pastedData.replace(/\D/g, '').slice(0, 4);
