@@ -175,14 +175,23 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
   const [loading, setLoading] = React.useState(false);
   const [availabilityData, setAvailabilityData] = React.useState<Array<{hour: number, percentage: number}>>([]);
   const [availabilityLoaded, setAvailabilityLoaded] = React.useState(false);
+  const [isFetchingAvailability, setIsFetchingAvailability] = React.useState(false);
+  const availabilityCacheRef = React.useRef<Record<string, Array<{hour: number, percentage: number}>>>({});
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Функция для загрузки данных о доступности
   const loadAvailability = React.useCallback(async (selectedDate: Dayjs) => {
     if (!state.selectedJobSize || !state.zipCode) return;
-
-    setAvailabilityLoaded(false);
+    const dateKey = selectedDate.startOf('day').format('YYYY-MM-DD');
+    // Сначала пробуем показать кэш, если он есть, чтобы не мигали слоты
+    if (availabilityCacheRef.current[dateKey]) {
+      setAvailabilityData(availabilityCacheRef.current[dateKey]);
+      setAvailabilityLoaded(true);
+    } else {
+      setAvailabilityLoaded(false);
+    }
+    setIsFetchingAvailability(true);
     try {
       const request = {
         zipcode: state.zipCode,
@@ -194,6 +203,7 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
       const response = await getContractorAvailability(request);
       if (response.data) {
         setAvailabilityData(response.data);
+        availabilityCacheRef.current[dateKey] = response.data;
         setAvailabilityLoaded(true);
       }
     } catch (error) {
@@ -201,6 +211,8 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
       // В случае ошибки используем статичные данные
       setAvailabilityData([]);
       setAvailabilityLoaded(false);
+    } finally {
+      setIsFetchingAvailability(false);
     }
   }, [state.selectedJobSize?.id, state.zipCode]);
 
@@ -387,7 +399,7 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
           <Box sx={{ minWidth: isMobile ? '100%' : 340, textAlign: 'left' }}>
             <Typography sx={{ fontWeight: 600, fontSize: isMobile ? 16 : 18, mb: isMobile ? 3 : 4, color: '#323232' }}>
               Select an appointment time
-              {contractorAvailability.loading && (
+              {isFetchingAvailability && (
                 <Typography component="span" sx={{ fontSize: isMobile ? 12 : 14, color: '#666', ml: 1 }}>
                   (Loading...)
                 </Typography>
@@ -403,9 +415,9 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
                 <Button
                   key={t.label}
                   variant="contained"
-                  disabled={t.status === 'disabled' || contractorAvailability.loading || !availabilityLoaded}
+                  disabled={t.status === 'disabled' || isFetchingAvailability || !availabilityLoaded}
                   onClick={() => {
-                    if (t.status !== 'disabled' && !contractorAvailability.loading && availabilityLoaded) {
+                    if (t.status !== 'disabled' && !isFetchingAvailability && availabilityLoaded) {
                       setSelectedTime(t.label);
                     }
                   }}
@@ -478,7 +490,7 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
           <Button 
             variant="contained" 
             onClick={handleFinish}
-            disabled={loading || !date || !selectedTime || !state.selectedJobSize || contractorAvailability.loading || !availabilityLoaded}
+            disabled={loading || !date || !selectedTime || !state.selectedJobSize || isFetchingAvailability || !availabilityLoaded}
             sx={{ 
               minWidth: isMobile ? 120 : 120, 
               width: isMobile ? 140 : 120,
@@ -496,8 +508,8 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
               py: isMobile ? 1.2 : 1
             }}
           >
-            {loading ? 'Submitting...' : contractorAvailability.loading || !availabilityLoaded ? 'Loading...' : 'Finish'}
-            {!loading && !contractorAvailability.loading && availabilityLoaded && (
+            {loading ? 'Submitting...' : isFetchingAvailability || !availabilityLoaded ? 'Loading...' : 'Finish'}
+            {!loading && !isFetchingAvailability && availabilityLoaded && (
               <svg xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: '8px' }} width="8" height="14" viewBox="0 0 8 14">
                 <path d="M7.69229 7.44217L1.44229 13.6922C1.38422 13.7502 1.31528 13.7963 1.23941 13.8277C1.16354 13.8592 1.08223 13.8753 1.0001 13.8753C0.917982 13.8753 0.836664 13.8592 0.760793 13.8277C0.684922 13.7963 0.615984 13.7502 0.557916 13.6922C0.499847 13.6341 0.453784 13.5652 0.422357 13.4893C0.390931 13.4134 0.374756 13.3321 0.374756 13.25C0.374756 13.1679 0.390931 13.0865 0.422357 13.0107C0.453784 12.9348 0.499847 12.8659 0.557916 12.8078L6.36651 6.99998L0.557916 1.19217C0.44064 1.07489 0.374756 0.915834 0.374756 0.749981C0.374756 0.584129 0.44064 0.425069 0.557916 0.307794C0.675191 0.190518 0.834251 0.124634 1.0001 0.124634C1.16596 0.124634 1.32502 0.190518 1.44229 0.307794L7.69229 6.55779C7.7504 6.61584 7.7965 6.68477 7.82795 6.76064C7.85941 6.83652 7.87559 6.91785 7.87559 6.99998C7.87559 7.08212 7.85941 7.16344 7.82795 7.23932C7.7965 7.31519 7.7504 7.38412 7.69229 7.44217Z" fill={'white'}/>
               </svg>

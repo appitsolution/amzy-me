@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -17,27 +17,20 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 type Step = 'homepage' | 'privacystep' | 'phoneverifystep' | 'junkamountstep' | 'datetimestep' | 'bookingsubmitted';
 
 function HomePageContent() {
-  const [currentStep, setCurrentStep] = useState<Step>('homepage');
   const { state } = useBooking();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const searchParams = useSearchParams();
   const router = useRouter();
+  const currentStep = (searchParams.get('step') as Step | null) ?? 'homepage';
 
-  // Однократно применяем query-параметр step и очищаем его из URL
-  useEffect(() => {
-    const stepParam = searchParams.get('step') as Step | null;
-    if (stepParam) {
-      setCurrentStep(stepParam);
-      router.replace('/', { scroll: false });
-    }
-  }, [searchParams, router]);
+  // Если условия позволяют пропустить текущий шаг — навигируем вперёд по URL
 
   // Проверяем статус верификации при изменении состояния
   useEffect(() => {
     if (state.isPhoneVerified && currentStep === 'phoneverifystep') {
       // Если телефон уже верифицирован, пропускаем шаг верификации
-      setCurrentStep('junkamountstep');
+      router.push('/?step=junkamountstep', { scroll: false });
     }
   }, [state.isPhoneVerified, currentStep]);
 
@@ -46,32 +39,38 @@ function HomePageContent() {
     if (state.isPrivacyAccepted && currentStep === 'privacystep') {
       // Если privacy policy уже принята, пропускаем этот шаг
       if (state.isPhoneVerified) {
-        setCurrentStep('junkamountstep');
+        router.push('/?step=junkamountstep', { scroll: false });
       } else {
-        setCurrentStep('phoneverifystep');
+        router.push('/?step=phoneverifystep', { scroll: false });
       }
     }
   }, [state.isPrivacyAccepted, state.isPhoneVerified, currentStep]);
+
+  const navigateTo = (step: Step) => {
+    if (step !== currentStep) {
+      router.push(`/?step=${step}`, { scroll: false });
+    }
+  };
 
   const handleContinueFromHomepage = () => {
     if (state.isPrivacyAccepted) {
       // Если privacy policy уже принята, проверяем телефон
       if (state.isPhoneVerified) {
-        setCurrentStep('junkamountstep');
+        navigateTo('junkamountstep');
       } else {
-        setCurrentStep('phoneverifystep');
+        navigateTo('phoneverifystep');
       }
     } else {
-      setCurrentStep('privacystep');
+      navigateTo('privacystep');
     }
   };
 
   const handleContinueFromPrivacy = () => {
     if (state.isPhoneVerified) {
       // Если телефон уже верифицирован, пропускаем шаг верификации
-      setCurrentStep('junkamountstep');
+      navigateTo('junkamountstep');
     } else {
-      setCurrentStep('phoneverifystep');
+      navigateTo('phoneverifystep');
     }
   };
 
@@ -138,7 +137,7 @@ function HomePageContent() {
             justifyContent: 'center', 
             padding: isMobile ? '20px 16px' : '40px 20px'
           }}>
-            <PrivacyStep onContinue={handleContinueFromPrivacy} onBack={() => setCurrentStep('homepage')} />
+            <PrivacyStep onContinue={handleContinueFromPrivacy} onBack={() => navigateTo('homepage')} />
           </main>
         );
       
@@ -152,8 +151,8 @@ function HomePageContent() {
             padding: isMobile ? '20px 16px' : '40px 20px'
           }}>
             <PhoneVerifyStep 
-              onContinue={() => setCurrentStep('junkamountstep')} 
-              onBack={() => setCurrentStep('homepage')} 
+              onContinue={() => navigateTo('junkamountstep')} 
+              onBack={() => navigateTo('homepage')} 
             />
           </main>
         );
@@ -167,7 +166,7 @@ function HomePageContent() {
             minHeight: 'calc(100vh - 180px)',
             padding: isMobile ? '20px 16px' : '40px 20px'
           }}>
-            <JunkAmountStep onContinue={() => setCurrentStep('datetimestep')} onBack={() => setCurrentStep('homepage')} />
+            <JunkAmountStep onContinue={() => navigateTo('datetimestep')} onBack={() => navigateTo('homepage')} />
           </main>
         );
       
@@ -180,7 +179,7 @@ function HomePageContent() {
             minHeight: 'calc(100vh - 180px)',
             padding: isMobile ? '20px 16px' : '40px 20px'
           }}>
-            <DateTimeStep onContinue={() => setCurrentStep('bookingsubmitted')} onBack={() => setCurrentStep('junkamountstep')} onHomepage={() => setCurrentStep('homepage')} />
+            <DateTimeStep onContinue={() => navigateTo('bookingsubmitted')} onBack={() => navigateTo('junkamountstep')} onHomepage={() => navigateTo('homepage')} />
           </main>
         );
       

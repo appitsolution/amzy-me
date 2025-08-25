@@ -48,17 +48,31 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
   }, [state.phoneNumber, state.isPhoneVerified, codeSent, sendPhoneAuthCode]);
 
   const handleChange = (idx: number, value: string) => {
-    if (!/^[0-9]?$/.test(value)) return;
+    const digitsOnly = value.replace(/\D/g, '');
+    // Нет валидных символов
+    if (digitsOnly.length === 0) {
+      const cleared = [...code];
+      cleared[idx] = '';
+      setCode(cleared);
+      if (error) setError('');
+      return;
+    }
+
     const newCode = [...code];
-    newCode[idx] = value;
+    let writeCount = 0;
+    for (let i = 0; i < digitsOnly.length && idx + i < 4; i++) {
+      if (/^[0-9]$/.test(digitsOnly[i])) {
+        newCode[idx + i] = digitsOnly[i];
+        writeCount++;
+      }
+    }
     setCode(newCode);
-    if (value && idx < 3) {
-      inputsRef.current[idx + 1]?.focus();
-    }
-    // Очищаем ошибку при вводе
-    if (error) {
-      setError('');
-    }
+
+    // Передвигаем фокус на следующий незаполненный/последний измененный инпут
+    const nextIndex = Math.min(3, idx + writeCount);
+    inputsRef.current[nextIndex]?.focus();
+
+    if (error) setError('');
   };
 
   const handleKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement | HTMLDivElement>) => {
@@ -80,35 +94,35 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>, startIdx: number) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text');
-    const digits = pastedData.replace(/\D/g, '').slice(0, 4); // Извлекаем только цифры и ограничиваем до 4 символов
-    
-    if (digits.length === 4) {
-      const newCode = [...code];
-      for (let i = 0; i < 4; i++) {
-        newCode[i] = digits[i];
-      }
-      setCode(newCode);
-      
-      // Фокусируемся на последнем поле
-      inputsRef.current[3]?.focus();
-      
-      // Очищаем ошибку при вставке
-      if (error) {
-        setError('');
-      }
+    const digits = pastedData.replace(/\D/g, '').slice(0, 4);
+
+    if (digits.length === 0) return;
+
+    const newCode = [...code];
+    let j = 0;
+    for (let i = startIdx; i < 4 && j < digits.length; i++) {
+      newCode[i] = digits[j];
+      j++;
     }
+    setCode(newCode);
+
+    // Фокус на следующий индекс или последний
+    const nextIndex = Math.min(3, startIdx + digits.length);
+    inputsRef.current[nextIndex]?.focus();
+
+    if (error) setError('');
   };
 
-  // Автоматическая верификация при вводе всех 4 цифр
+  // Автоматическая верификация при вводе всех 4 цифр (только при изменении кода)
   React.useEffect(() => {
     const codeString = code.join('');
     if (codeString.length === 4 && !loading) {
       handleVerify();
     }
-  }, [code, loading]);
+  }, [code]);
 
   const handleVerify = async () => {
     const codeString = code.join('');
@@ -211,7 +225,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
               value={code[idx]}
               onChange={e => handleChange(idx, e.target.value)}
               onKeyDown={e => handleKeyDown(idx, e)}
-              onPaste={handlePaste}
+              onPaste={(e) => handlePaste(e, idx)}
               name={`otp-digit-${idx}`}
               autoComplete="off"
               inputProps={{ 
