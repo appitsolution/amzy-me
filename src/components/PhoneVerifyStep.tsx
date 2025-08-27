@@ -49,7 +49,32 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
 
   const handleChange = (idx: number, value: string) => {
     const digitsOnly = value.replace(/\D/g, '');
-    // Нет валидных символов
+    
+    // Если вставлено несколько символов (например, через подсказку клавиатуры)
+    if (digitsOnly.length > 1) {
+      const digits = digitsOnly.slice(0, 4);
+      
+      if (digits.length === 0) return;
+
+      const newCode = [...code];
+      let j = 0;
+      for (let i = idx; i < 4 && j < digits.length; i++) {
+        if (/^[0-9]$/.test(digits[j])) {
+          newCode[i] = digits[j];
+          j++;
+        }
+      }
+      setCode(newCode);
+
+      // Фокус на следующий индекс или последний
+      const nextIndex = Math.min(3, idx + digits.length);
+      inputsRef.current[nextIndex]?.focus();
+
+      if (error) setError('');
+      return;
+    }
+    
+    // Обычная обработка одного символа
     if (digitsOnly.length === 0) {
       const cleared = [...code];
       cleared[idx] = '';
