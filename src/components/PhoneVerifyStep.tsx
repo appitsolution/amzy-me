@@ -74,6 +74,23 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       return;
     }
     
+    // Если вставлен ровно 4-значный код (полная вставка)
+    if (digitsOnly.length === 4) {
+      const newCode = [...code];
+      for (let i = 0; i < 4; i++) {
+        if (/^[0-9]$/.test(digitsOnly[i])) {
+          newCode[i] = digitsOnly[i];
+        }
+      }
+      setCode(newCode);
+      
+      // Фокус на последний элемент
+      inputsRef.current[3]?.focus();
+      
+      if (error) setError('');
+      return;
+    }
+    
     // Обычная обработка одного символа
     if (digitsOnly.length === 0) {
       const cleared = [...code];
@@ -254,7 +271,6 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
               name={`otp-digit-${idx}`}
               autoComplete="off"
               inputProps={{ 
-                maxLength: 1,
                 inputMode: "numeric",
                 pattern: "[0-9]*",
                 autoComplete: 'off',
