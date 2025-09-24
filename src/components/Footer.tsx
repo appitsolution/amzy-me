@@ -5,10 +5,16 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import PolicyDialog from './PolicyDialog';
 
 const Footer = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const [dialogOpen, setDialogOpen] = React.useState<null | { title: string; type: 'privacy' | 'terms' }>(null);
+
+  const openDialog = (title: string, type: 'privacy' | 'terms') => setDialogOpen({ title, type });
+  const closeDialog = () => setDialogOpen(null);
 
   return (
     <Box component="footer" sx={{ 
@@ -37,20 +43,18 @@ const Footer = () => {
         }}
       >
         <Link 
-          href="https://docs.google.com/document/d/1ObSmhxE8967AjPis9tPUuFHHGxfMoEdmZuy4gcaU-3Q/edit?usp=sharing" 
+          href="#" 
           underline="none" 
           sx={{ color: '#888', fontSize: 14 }} 
-          target="_blank" 
-          rel="noopener noreferrer"
+          onClick={(e) => { e.preventDefault(); openDialog('Privacy Policy', 'privacy'); }}
         >
           Privacy Policy
         </Link>
         <Link 
-          href="https://docs.google.com/document/d/1t19RgID4nwlvANcK1gDJSFrXtn2m65V6/edit?usp=sharing&ouid=108826075963447222756&rtpof=true&sd=true" 
+          href="#" 
           underline="none" 
           sx={{ color: '#888', fontSize: 14 }} 
-          target="_blank" 
-          rel="noopener noreferrer"
+          onClick={(e) => { e.preventDefault(); openDialog('Terms of Service', 'terms'); }}
         >
           Terms of Service
         </Link>
@@ -68,6 +72,14 @@ const Footer = () => {
       }}>
         © {new Date().getFullYear()} Amzy LLC
       </Typography>
+      {dialogOpen && (
+        <PolicyDialog 
+          open={Boolean(dialogOpen)} 
+          title={dialogOpen.title} 
+          type={dialogOpen.type} 
+          onClose={closeDialog} 
+        />
+      )}
     </Box>
   );
 };

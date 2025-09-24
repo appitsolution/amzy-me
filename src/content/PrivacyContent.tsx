@@ -1,0 +1,202 @@
+import React from "react";
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
+export default function PrivacyContent() {
+  const raw = `Amzy Privacy Policy
+
+Last Updated: September 20, 2025
+
+At Amzy, we want to connect people through provision of services not limited to junk removal and bring communities together. In this privacy policy, we tell you what information we receive from Amzy Haulers, Dispatchers and Customers, and how we use it to connect Customers with Haulers, Dispatchers and continue to improve our services. Below, we explain how you can share with other Customers, Haulers and Dispatchers in the Amzy community as part of our mission to bring people together.
+
+Scope of this Privacy Policy
+
+Amzy ("Amzy," "we," "our," and/or "us") values the privacy of individuals who use our application, websites, and related services (collectively, the "Amzy Platform "). This privacy policy (the "Privacy Policy") explains how we collect, use, and share information from Amzy users ("Users"), comprised of all Amzy customers ("Customers"), Amzy Haulers (including Hauling applicants) ("Haulers") and Amzy service professionals offering outlet of surplus work (Dispatchers).  Beyond the Privacy Policy, your use of Amzy is also subject to our Terms of Service (http://www.amzy.me/helpcenter/TermsofService).
+
+Information We Collect
+
+A. Information You Provide to Us
+
+Registration Information. When you sign up for an Amzy account, you give us your name, email address, and phone number. If you decide to sign up for Amzy using your Facebook account, we will also get basic information from your Facebook profile like your name, gender, profile photo, and Facebook friends.
+
+User Profile Information. When you join the Amzy community, you can create an Amzy Profile to share fun facts about yourself, and discover mutual friends and interests.  You may describe the nature of your business and add vendors or companies you work with or do business with.  Filling out a profile is optional, and you can share as little or as much as you want. Your name (and for Haulers or dispatchers, Profile photos) is always part of your Profile. Read more below about how you can control who sees your Profile. You can also add a Business Profile to your account, which requires a designated business email address and payment method.
+
+Payment Method. When you add a credit card or payment method to your Amzy account, a third party that handles payments for us will receive your card information. To keep your financial data secure, we do not store full credit card information on our servers.
+Communications. If you contact us directly, we may receive additional information about you. For example, when you contact our Customer Support Team, we will receive your name, email address, phone number, the contents of a message or attachments that you may send to us, and other information you choose to provide.
+
+Driver Application Information. If you decide to join our Amzy Hauler or Dispatcher community, in addition to the basic registration information we ask you for your date of birth, physical address, Social Security number, driver's license information, vehicle information, car insurance information, and in some jurisdictions we may collect additional business license or permitting information. We share this information with our partners who help us by running background checks on Drivers to help protect the Amzy community.
+
+Payment Information. To make sure Haulers and Dispatchers get paid, we keep information about Haulers' and Dispatchers' bank routing numbers, tax information, and any other payment information provided by Haulers and Dispatchers.
+
+B. Information We Collect When You Use the Amzy Platform Location Information. 
+
+
+Amzy is all about connecting Haulers, Dispatchers and Customers. To do this, we need to know where you are. When you open Amzy on your mobile device, we receive your location. We may also collect the precise location of your device when the app is running in the foreground or background. If you label certain locations, such as "home" and "work," we receive that information, too.
+
+Your location information is necessary for things like matching Customers with nearby Haulers and Dispatchers with Haulers, determining drop off and pick up locations, and suggesting destinations based on previous trips. Also, if the need ever arises, our Trust & Safety team may use and share location information to help protect the safety of Amzy Users or a member of the public. In addition to the reasons described above, Haulers' location information and distance traveled is necessary for calculating charges and insurance for Amzy Service. If you give us permission through your device settings or Amzy app, we may collect your location while the app is off to identify promotions or service updates in your area.
+
+Device Information. Amzy receives information from Users' devices, including IP address, web browser type, mobile operating system version, phone carrier and manufacturer, application installations, device identifiers, mobile advertising identifiers, push notification tokens, and, if you register with your Facebook account, your Facebook identifier. We collect mobile sensor data from Haulers' devices (such as speed, direction, height, acceleration or deceleration) to improve location accuracy and analyze usage patterns.
+
+Usage Information. To help us understand how you use the Amzy Platform and to help us improve it, we automatically receive information about your interactions with the Amzy Platform, like the pages or other content you view, your actions within the Amzy app, and the dates and times of your visits.
+
+Call and Text Information. We work with a third party partner to facilitate phone calls and text messages between Customers, Haulers and Dispatchers who have been connected for a Job. We receive information about these communications including the date and time of the call or SMS message, the parties' phone numbers, and the content of any SMS messages.
+
+User Feedback. At Amzy, we want to make sure Users are always enjoying great Service. Customers, Dispatchers and Haulers may rate and review each other at the end of every job. We receive information about ratings and reviews and, as we explain below, give Haulers and Dispatchers information about Hauler' and Dispatcher' ratings and reviews and vice versa.
+
+Address Book Contacts. If you permit Amzy to access the address book on your device through the permission system used by your mobile platform, we may access and store names and contact information from your address book to facilitate invitations and social interactions that you initiate through our Platform and for other purposes described in this privacy policy or at the time of consent or collection.
+
+Information from Cookies and Similar Technologies. We collect information through the use of "cookies", tracking pixels, and similar technologies to understand how you navigate through the Amzy Platform and interact with Amzy advertisements, to learn what content is popular, and to save your preferences. Cookies are small text files that web servers place on your device; they are designed to store basic information and to help websites and apps recognize your browser. We may use both session cookies and persistent cookies. A session cookie disappears after you close your browser. A persistent cookie remains after you close your browser and may be accessed every time you use the Amzy Platform. You should consult your web browser(s) to modify your cookie settings. Please note that if you delete or choose not to accept cookies from us, you may be missing out on certain features of the Amzy Platform.
+
+C. Information We Collect from Third Parties
+
+Third Party Services. If you choose to register for Amzy or otherwise link your Amzy account with a third party's service (such as Facebook), we may receive the same type of information we collect from you (described above) directly from those services.
+
+Third Party Partners. We may receive additional information about you, such as demographic data, payment information, or fraud detection information, from third party partners and combine it with other information that we have about you.
+
+Enterprise Programs. If your company, university, or organization participates in one of our enterprise programs such as Amzy for Work, we may receive information about you, such as your email address, from your participating organization. We also may give your participating organization the opportunity to request service on your behalf, in which case they may provide us with your name, phone number, and the pickup or service location for your job.
+
+Background Information on Haulers and Dispatchers. Amzy works with third party partners to perform driving record and criminal background checks on Haulers and Dispatchers, and we receive information from them such as publicly available information about a Hauler's  or Dispatcher's driving record or criminal history.
+
+How We Use the Information We Collect
+
+We use the information we collect from all Users to:
+
+- Connect Customers, Dispatchers with Haulers;
+
+- Provide, improve, expand, and promote the Amzy Platform;
+
+- Analyze how the Amzy community uses the Amzy Platform;
+
+- Communicate with you, either directly or through one of our partners, including for marketing and promotional purposes;
+
+- Personalize the Amzy experience for you and your friends and contacts;
+
+- Send you text messages and push notifications;
+
+- Facilitate transaction and removal or junk and payments;
+
+- Provide you with customer support;
+
+- Find and prevent fraud; and
+
+- Respond to trust and safety issues that may arise, including auto incidents, disputes between Customers, Dispatchers and Haulers, and requests from government authorities.
+
+
+Additionally, we use the information we collect from Users for the following purposes related to working on the Amzy Platform:
+
+- Sending emails and text messages to Haulers and Dispatchers who have started the Contractors application process regarding the status of their application;
+
+- Determining a Hauler's and Dispatcher's eligibility to contract for Amzy;
+
+- Notifying Haulers and Dispatchers about service demand, pricing and service updates; and
+
+- Calculating and providing Amzy's auto insurance policy and analyzing usage patterns for safety and insurance purposes.
+
+How We Share the Information We Collect
+
+We do not sell your personal information to third parties for money -- no one can buy the personal information we collect from and about you and we do not act as a data broker. However, we may need to share your personal information with third parties to deliver relevant personalized ads to you on and off the Amzy Platform. 
+
+A. Sharing Between Users
+
+Sharing between Customers, Dispatchers and Haulers. Customers, Dispatchers and Haulers that have been matched for a Service are able to see basic information about each other, such as names, photo, ratings, and any information they have added to their Profiles. Customers, Dispatchers and Haulers who connect their Amzy accounts to Facebook will also be able to see their mutual Facebook friends during the job. Haulers and Dispatchers see the pick-up or job location that the Customer has provided. The Haulers see the Information the Dispatcher had provided about the Customer.  Customers see a Haulers's vehicle information and real-time location as the Hauler approaches the job location. Customers' ratings of Haulers are shared with Haulers and Dispatchers on a weekly basis. We de-identify the ratings and feedback, but we can't rule out that a Hauler may be able to identify the Customer that provided the rating or feedback.
+
+Although we help Customers, Dispatchers and Haulers communicate with one another to arrange a pickup or a job, we do not share your actual phone number or other contact information with other Users. If you report a lost or found item to us, we will seek to connect you with the relevant Customer or Hauler, including sharing actual contact information with your permission.
+
+B. Sharing Between Amzy and Third Parties
+
+API and Integration Partners. If you connect to the Amzy Platform through an integration with a third party service, we may share information about your use of the Amzy Platform with that third party. We may share your information with our third party partners in order to receive additional information about you. We may also share your information with third party partners to create offers that may be of interest to you.
+
+Third Party Services. The Amzy Platform may allow you to connect with other websites, products, or services that we don't have control over (for example, we may give you the ability to order other skilled trade services or products from within the Amzy app). If you use these services, or purchase goods, we will provide the third party with information about you to allow them to provide the service or goods to you (for example, we would give the service provider like a Plumber or others your name, phone number and address to deliver service or goods). We can't speak to the privacy practices of these third parties, and we encourage you to read their privacy policies before deciding whether to use or purchase their services or goods.
+
+Service Providers. We work with third party service providers to perform services on our behalf, and we may share your information with such service providers to help us provide the Amzy Platform, including all of the things described in Section 3 above.
+
+Other Sharing. We may share your information with third parties in the following cases:
+
+- While negotiating or in relation to a change of corporate control such as a restructuring, merger or sale of our assets;
+- If a government authority requests information and we think disclosure is required or appropriate in order to comply with laws, regulations, or a legal process;
+- With law enforcement officials, government authorities, or third parties if we think doing so is necessary to protect the rights, property, or safety of the Amzy community, Amzy, or the public (you can read more about this in our Law Enforcement Request policy);
+- If you signed up for a promotion with another User's referral or promotion code, with your referrer to let them know about your redemption of or qualification for the promotion;
+- With our insurance partners to help determine and provide relevant coverage in the event of an incident;
+To provide information about the use of the Amzy Platform to potential business partners in aggregated or de-identified form that can't reasonably be used to identify you; and
+- Whenever you consent to the sharing.
+
+How We Store and Protect Your Information
+
+We retain your information for as long as necessary to provide you and our other users the Amzy Platform. This means we keep your profile information for as long as you maintain an account. We retain transactional information such as service and payments for at least seven years to ensure we can perform legitimate business functions, such as accounting for tax obligations. We also retain your information as necessary to comply with our legal obligations, resolve disputes and enforce our terms and policies. If you request account deletion, we will delete your information as set forth in the "Deleting Your Account" section below.
+
+We take reasonable and appropriate measures designed to protect your personal information. But no security measures can be 100% effective, and we cannot guarantee the security of your information, including against unauthorized intrusions or acts by third parties.
+
+Your Choices
+
+As explained more below and on our privacy homepage, Amzy provides ways for you to access and delete your personal information as well as exercise applicable data rights that give you certain control over your personal information.
+
+Email Subscriptions. You can always unsubscribe from our commercial or promotional emails but we will still send you transactional and relational emails about your account use of the Amzy Platform.
+
+Text Messages. You can opt out of receiving commercial or promotional text messages by texting the word END in response to a SMS from the mobile device receiving the messages. You may also opt out of receiving all texts from Amzy (including transactional or relational messages) by texting the word STOPALL in response to a SMS from the mobile device receiving the messages, however, opting out of receiving all texts may impact your use of the Amzy Platform. Haulers and Dispatchers can also opt out of hauler-specific and dispatcher-specific messages by texting STOP in response to a hauler's SMS. To re- enable texts you can text START in response to an unsubscribe confirmation SMS.
+
+Push Notifications. You can opt out of receiving push notifications through your device settings. Please note that opting out of receiving push notifications may impact your use of the Amzy Platform (such as receiving a notification that your service provider has arrived).
+
+Profile Information. While your name will always be shared with Haulers and Dispatchers, you can delete any additional information that you added to your Profile at any time if you don't want Haulers and Amzy Customers to see it. Customers will always be able to see Haulers' names, rating, profile photos, and vehicle information.
+
+Location Information. While you can prevent your device from sharing location information at any time through your Device's operating system settings, Customers, Dispatchers and Haulers location is core to the Amzy Platform and without it we can't provide our services to you.
+
+Cookie Tracking. You can modify your cookie settings on your browser. You may also further control your cookie setting page.
+
+Editing and Accessing Your Information. You can review and edit certain account information by logging in to your account settings and profile (Haulers and Dispatchers may edit additional information through the Haulers and Dispatchers portal). If you would like to terminate your Amzy account, please contact us through our Help Center with your request. If you choose to terminate your account, we will deactivate it for you but may retain information from your account for a certain period of time and disclose it in a manner consistent with our practices under this Privacy Policy for accounts that are not closed. We also may retain information from your account to collect any fees owed, resolve disputes, troubleshoot problems, analyze usage of the Amzy Platform, assist with any investigations, prevent fraud, enforce our Terms of Service, or take other actions as required or permitted by law.
+
+Deleting Your Account. If you would like to delete your Amzy account, please visit our privacy homepage. In some cases, we will be unable to delete your account, such as if there is an issue with your account related to trust, safety, or fraud. When we delete your account, we may retain certain information for legitimate business purposes or to comply with legal or regulatory obligations. For example, we may retain your information to resolve open insurance claims, or we may be obligated to retain your information as part of an open legal claim. When we retain such data, we do so in ways designed to prevent its use for other purposes.
+
+Children's Data
+
+Amzy is not directed to children, and we don't knowingly collect personal information from children under the age of 16. If we find out that a child under 16 has given us personal information, we will take steps to delete that information. If you believe that a child under the age of 16 has given us personal information, please contact us at our Help Center.
+
+Links to Third-Party Websites
+
+The Amzy Platform may contain links or references to third-party websites, products, or services. Those third parties may have privacy policies that differ from ours. We are not responsible for those third parties and their websites, products or services, and we recommend that you review their policies. Please contact those parties directly if you have any questions about their privacy policies.
+
+Changes to This Privacy Policy
+
+We may update this policy from time to time as the Amzy Platform changes and privacy law evolves. If we update it, we will do so online, and if we make material changes, we will let you know through the Amzy Platform or by some other method of communication like email. When you use Amzy, you are agreeing to the most recent terms of this policy.
+Contact Information. 
+
+Feel free to contact us at any time with any questions or comments about this Privacy Policy, your personal information, our use and sharing practices, or your consent choices by contacting our Help Center.`;
+
+  const paragraphs = React.useMemo(() => {
+    return raw.split(/\n\n+/).map(p => p.trim()).filter(Boolean);
+  }, [raw]);
+
+  const isHeading = (p: string) => {
+    if (p === 'Amzy Privacy Policy') return true;
+    if (p.match(/^(Scope of this Privacy Policy|Information We Collect|How We Use the Information We Collect|How We Share the Information We Collect|How We Store and Protect Your Information|Your Choices|Children’s Data|Links to Third-Party Websites|B. Information We Collect When You Use the Amzy Platform Location Information.|Changes to This Privacy Policy|Contact Information\.?)/)) return true;
+    if (/^[A-Z]\.?\s?\.?$/.test(p)) return false;
+    return p.length < 70 && !/[.!?]$/.test(p) && /^[A-Z]/.test(p);
+  };
+
+  return (
+    <Box sx={{ p: 0, '& p': { mb: 2 }, '& h6': { mt: 3, mb: 1, fontWeight: 600 }, color: '#222' }}>
+      {paragraphs.map((p, idx) => {
+        if (idx === 1 && p.startsWith('Last Updated')) {
+          return (
+            <Typography key={idx} variant="body2" sx={{ color: '#666', mb: 2 }}>
+              {p}
+            </Typography>
+          );
+        }
+        if (isHeading(p)) {
+          return (
+            <Typography key={idx} variant="h6" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
+              {p}
+            </Typography>
+          );
+        }
+        return (
+          <Typography key={idx} sx={{ mb: 2 }}>
+            {p}
+          </Typography>
+        );
+      })}
+    </Box>
+  );
+}
+
+

@@ -11,6 +11,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useBooking } from '../context/BookingContext';
 import { useApi } from '../hooks/useApi';
 import { cleanPhoneNumber } from '../utils/validation';
+import PolicyDialog from './PolicyDialog';
 
 interface PrivacyStepProps {
   onContinue: () => void;
@@ -24,6 +25,10 @@ export default function PrivacyStep({ onContinue, onBack }: PrivacyStepProps) {
   const { sendPhoneAuthCode } = useApi();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [dialogOpen, setDialogOpen] = React.useState<null | { title: string; type: 'privacy' | 'terms' }>(null);
+
+  const openDialog = (title: string, type: 'privacy' | 'terms') => setDialogOpen({ title, type });
+  const closeDialog = () => setDialogOpen(null);
 
   // Автоматически пропускаем шаг, если privacy policy уже принята
   React.useEffect(() => {
@@ -51,11 +56,11 @@ export default function PrivacyStep({ onContinue, onBack }: PrivacyStepProps) {
         <Stack direction="row" spacing={isMobile ? 2 : 6} justifyContent="center" alignItems="center" sx={{ mb: isMobile ? 2 : 3 }}>
           <div>
           <span style={{ color: '#D94F04', fontSize: isMobile ? 18 : 24, marginRight: 10 }}>&bull;</span>
-          <Link href="https://docs.google.com/document/d/1t19RgID4nwlvANcK1gDJSFrXtn2m65V6/edit?usp=sharing&ouid=108826075963447222756&rtpof=true&sd=true" sx={{ color: '#D94F04', fontSize: isMobile ? 15 : 18, fontWeight: 500, textDecoration: 'none' }}>Terms of Use</Link>
+          <Link href="#" onClick={(e) => { e.preventDefault(); openDialog('Terms of Service', 'terms'); }} sx={{ color: '#D94F04', fontSize: isMobile ? 15 : 18, fontWeight: 500, textDecoration: 'none' }}>Terms of Use</Link>
           </div>
           <div>
           <span style={{ color: '#D94F04', fontSize: isMobile ? 18 : 24, marginRight:  10 }}>&bull;</span>
-          <Link href="https://docs.google.com/document/d/1ObSmhxE8967AjPis9tPUuFHHGxfMoEdmZuy4gcaU-3Q/edit?usp=sharing" sx={{ color: '#D94F04', fontSize: isMobile ? 15 : 18, fontWeight: 500, textDecoration: 'none' }}>Privacy Statement</Link>
+          <Link href="#" onClick={(e) => { e.preventDefault(); openDialog('Privacy Policy', 'privacy'); }} sx={{ color: '#D94F04', fontSize: isMobile ? 15 : 18, fontWeight: 500, textDecoration: 'none' }}>Privacy Statement</Link>
           </div>
         </Stack>
         <Stack direction="row" justifyContent="center" alignItems="center" sx={{ mb: isMobile ? 3 : 5 }}>
@@ -138,6 +143,14 @@ export default function PrivacyStep({ onContinue, onBack }: PrivacyStepProps) {
             </svg>
           </Button>
         </Stack>
+        {dialogOpen && (
+          <PolicyDialog 
+            open={Boolean(dialogOpen)} 
+            title={dialogOpen.title} 
+            type={dialogOpen.type} 
+            onClose={closeDialog} 
+          />
+        )}
       </Box>
     </Box>
   );
