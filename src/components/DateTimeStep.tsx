@@ -315,6 +315,7 @@ export default function DateTimeStep({ onContinue, onBack, onHomepage }: DateTim
         photos: state.photos,
         start_date: timestamp,
         timezone_offset: getTimezoneOffsetHours(),
+        dispatcher_id: state.dispatcherId || undefined,
       };
 
       await apiService.addAppointment(request);

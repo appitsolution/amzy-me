@@ -17,12 +17,20 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 type Step = 'homepage' | 'privacystep' | 'phoneverifystep' | 'junkamountstep' | 'datetimestep' | 'bookingsubmitted';
 
 function HomePageContent() {
-  const { state } = useBooking();
+  const { state, dispatch } = useBooking();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const searchParams = useSearchParams();
   const router = useRouter();
   const currentStep = (searchParams.get('step') as Step | null) ?? 'homepage';
+
+  // Извлекаем dispatcher_id из URL параметров
+  useEffect(() => {
+    const dispatcherId = searchParams.get('utm_content') || searchParams.get('dispatcher_id');
+    if (dispatcherId) {
+      dispatch({ type: 'SET_DISPATCHER_ID', payload: dispatcherId });
+    }
+  }, [searchParams, dispatch]);
 
   // Если условия позволяют пропустить текущий шаг — навигируем вперёд по URL
 

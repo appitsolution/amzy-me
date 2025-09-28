@@ -93,6 +93,7 @@ export interface AddAppointmentRequest {
   photos: File[];
   start_date: number; // timestamp
   timezone_offset: number;
+  dispatcher_id?: string;
 }
 
 export interface AddAppointmentResponse {
@@ -203,6 +204,11 @@ export const apiService = {
       start_date: request.start_date.toString(),
       timezone_offset: request.timezone_offset.toString(),
     };
+
+    // Добавляем dispatcher_id если он есть
+    if (request.dispatcher_id) {
+      requestData.dispatcher_id = request.dispatcher_id;
+    }
     
     // Добавляем фото в FormData отдельно
     const formData = new FormData();

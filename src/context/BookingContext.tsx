@@ -33,6 +33,9 @@ export interface BookingState {
   selectedDate: Date | null;
   selectedTime: number | null; // час (0-23)
   
+  // Диспетчер
+  dispatcherId: string | null;
+  
   // Общее состояние
   currentStep: number;
   isSubmitted: boolean;
@@ -59,6 +62,7 @@ export type BookingAction =
   | { type: 'REMOVE_PHOTO'; payload: number }
   | { type: 'SET_SELECTED_DATE'; payload: Date | null }
   | { type: 'SET_SELECTED_TIME'; payload: number | null }
+  | { type: 'SET_DISPATCHER_ID'; payload: string | null }
   | { type: 'SET_CURRENT_STEP'; payload: number }
   | { type: 'SET_SUBMITTED'; payload: boolean }
   | { type: 'SET_APPOINTMENT_ID'; payload: number }
@@ -94,6 +98,7 @@ const getInitialState = (): BookingState => {
       photos: [],
       selectedDate: null,
       selectedTime: null,
+      dispatcherId: null,
       currentStep: 1,
       isSubmitted: false,
       appointmentId: null,
@@ -119,6 +124,7 @@ const getInitialState = (): BookingState => {
     photos: [],
     selectedDate: null,
     selectedTime: null,
+    dispatcherId: null,
     currentStep: 1,
     isSubmitted: false,
     appointmentId: null,
@@ -195,6 +201,8 @@ function bookingReducer(state: BookingState, action: BookingAction): BookingStat
       return { ...state, selectedDate: action.payload };
     case 'SET_SELECTED_TIME':
       return { ...state, selectedTime: action.payload };
+    case 'SET_DISPATCHER_ID':
+      return { ...state, dispatcherId: action.payload };
     case 'SET_CURRENT_STEP':
       return { ...state, currentStep: action.payload };
     case 'SET_SUBMITTED':
