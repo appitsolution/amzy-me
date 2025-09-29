@@ -25,6 +25,9 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
   const [codeSent, setCodeSent] = React.useState(false);
   const [resendTimer, setResendTimer] = React.useState(0);
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const [showResendButton, setShowResendButton] = React.useState(false);
+  const [hasShownResendOnce, setHasShownResendOnce] = React.useState(false);
+  const resendDelayTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const inputsRef = React.useRef<Array<HTMLInputElement | null>>([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -66,13 +69,32 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
           return prev - 1;
         });
       }, 1000);
+
+      // Управление видимостью кнопки «Resend SMS»
+      if (!hasShownResendOnce) {
+        // Первый показ — через ~10 секунд
+        setShowResendButton(false);
+        if (resendDelayTimeoutRef.current) {
+          clearTimeout(resendDelayTimeoutRef.current);
+        }
+        resendDelayTimeoutRef.current = setTimeout(() => {
+          setShowResendButton(true);
+          setHasShownResendOnce(true);
+        }, 5000);
+      } else {
+        // Последующие разы — показываем сразу
+        setShowResendButton(true);
+      }
     }
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      if (resendDelayTimeoutRef.current) {
+        clearTimeout(resendDelayTimeoutRef.current);
+      }
     };
-  }, [codeSent]);
+  }, [codeSent, hasShownResendOnce]);
 
   const handleChange = (idx: number, value: string) => {
     const digitsOnly = value.replace(/\D/g, '');
@@ -386,22 +408,24 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
               <path d="M7.69229 7.44217L1.44229 13.6922C1.38422 13.7502 1.31528 13.7963 1.23941 13.8277C1.16354 13.8592 1.08223 13.8753 1.0001 13.8753C0.917982 13.8753 0.836664 13.8592 0.760793 13.8277C0.684922 13.7963 0.615984 13.7502 0.557916 13.6922C0.499847 13.6341 0.453784 13.5652 0.422357 13.4893C0.390931 13.4134 0.374756 13.3321 0.374756 13.25C0.374756 13.1679 0.390931 13.0865 0.422357 13.0107C0.453784 12.9348 0.499847 12.8659 0.557916 12.8078L6.36651 6.99998L0.557916 1.19217C0.44064 1.07489 0.374756 0.915834 0.374756 0.749981C0.374756 0.584129 0.44064 0.425069 0.557916 0.307794C0.675191 0.190518 0.834251 0.124634 1.0001 0.124634C1.16596 0.124634 1.32502 0.190518 1.44229 0.307794L7.69229 6.55779C7.7504 6.61584 7.7965 6.68477 7.82795 6.76064C7.85941 6.83652 7.87559 6.91785 7.87559 6.99998C7.87559 7.08212 7.85941 7.16344 7.82795 7.23932C7.7965 7.31519 7.7504 7.38412 7.69229 7.44217Z" fill={(loading || code.join('').length !== 4) ? 'gray' : 'white'}/>
             </svg>
           </Button>
-          <Button
-            variant="outlined"
-            onClick={handleResendCode}
-            disabled={loading || resendTimer > 0}
-            sx={{
-              minWidth: isMobile ? 140 : 140,
-              fontSize: isMobile ? 16 : 18,
-              borderRadius: '8px',
-              color: resendTimer > 0 ? '#999' : '#323232',
-              borderColor: resendTimer > 0 ? '#e0e0e0' : '#C0BFBF',
-              textTransform: 'none',
-              background: '#fff'
-            }}
-          >
-            {resendTimer > 0 ? `Resend SMS (${resendTimer}s)` : 'Resend SMS'}
-          </Button>
+          {showResendButton && (
+            <Button
+              variant="outlined"
+              onClick={handleResendCode}
+              disabled={loading || resendTimer > 0}
+              sx={{
+                minWidth: isMobile ? 140 : 140,
+                fontSize: isMobile ? 16 : 18,
+                borderRadius: '8px',
+                color: resendTimer > 0 ? '#999' : '#323232',
+                borderColor: resendTimer > 0 ? '#e0e0e0' : '#C0BFBF',
+                textTransform: 'none',
+                background: '#fff'
+              }}
+            >
+              {resendTimer > 0 ? `Resend SMS (${resendTimer}s)` : 'Resend SMS'}
+            </Button>
+          )}
         </Stack>
       </Box>
     </Box>

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://amzy.me/testapp/api/web';
+const API_BASE_URL = 'https://api-amzy.me/testapp/api/web';
 
 // Типы для API ответов
 export interface AddressSearchResult {
