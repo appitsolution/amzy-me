@@ -28,12 +28,12 @@ export default function PolicyDialog({ open, title, type, onClose }: PolicyDialo
         </IconButton>
       </DialogTitle>
       {type === 'terms' && (
-        <DialogContent dividers sx={{ p: { xs: 2, md: 3 }, height: { xs: 400, md: 600 }, overflow: 'auto' }}>
+        <DialogContent dividers sx={{ p: { xs: 2, md: 3 }, height: { xs: 600, md: 600 }, overflow: 'auto' }}>
           <TermsContent />
         </DialogContent>
       )}
       {type === 'privacy' && (
-        <DialogContent dividers sx={{ p: { xs: 2, md: 3 }, height: { xs: 400, md: 600 }, overflow: 'auto' }}>
+        <DialogContent dividers sx={{ p: { xs: 2, md: 3 }, height: { xs: 600, md: 600 }, overflow: 'auto' }}>
           <PrivacyContent />
         </DialogContent>
       )}
