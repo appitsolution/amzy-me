@@ -32,7 +32,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Автоматически отправляем код при загрузке компонента
+  // Automatically send code on component load
   React.useEffect(() => {
     const sendCode = async () => {
       if (!state.isPhoneVerified && state.phoneNumber && !codeSent) {
@@ -52,10 +52,10 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     sendCode();
   }, [state.phoneNumber, state.isPhoneVerified, codeSent, sendPhoneAuthCode]);
 
-  // Запускаем 30-секундный таймер после отправки кода
+  // Start 30-second timer after code is sent
   React.useEffect(() => {
     if (codeSent) {
-      // Сброс существующего таймера
+      // Reset existing timer
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
@@ -70,9 +70,9 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
         });
       }, 1000);
 
-      // Управление видимостью кнопки «Resend SMS»
+      // Manage visibility of Resend SMS button
       if (!hasShownResendOnce) {
-        // Первый показ — через ~10 секунд
+        // First show — after ~10 seconds
         setShowResendButton(false);
         if (resendDelayTimeoutRef.current) {
           clearTimeout(resendDelayTimeoutRef.current);
@@ -82,7 +82,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
           setHasShownResendOnce(true);
         }, 5000);
       } else {
-        // Последующие разы — показываем сразу
+        // Subsequent times — show immediately
         setShowResendButton(true);
       }
     }
@@ -99,7 +99,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
   const handleChange = (idx: number, value: string) => {
     const digitsOnly = value.replace(/\D/g, '');
     
-    // Если вставлено несколько символов (например, через подсказку клавиатуры)
+    // Handle multiple digits (e.g., via keyboard suggestion)
     if (digitsOnly.length > 1) {
       const digits = digitsOnly.slice(0, 4);
       
@@ -115,7 +115,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       }
       setCode(newCode);
 
-      // Фокус на следующий индекс или последний
+      // Focus on next or last index
       const nextIndex = Math.min(3, idx + digits.length);
       inputsRef.current[nextIndex]?.focus();
 
@@ -123,7 +123,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       return;
     }
     
-    // Если вставлен ровно 4-значный код (полная вставка)
+    // Handle 4-digit code paste
     if (digitsOnly.length === 4) {
       const newCode = [...code];
       for (let i = 0; i < 4; i++) {
@@ -133,14 +133,14 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       }
       setCode(newCode);
       
-      // Фокус на последний элемент
+      // Focus on last input
       inputsRef.current[3]?.focus();
       
       if (error) setError('');
       return;
     }
     
-    // Обычная обработка одного символа
+    // Handle single digit
     if (digitsOnly.length === 0) {
       const cleared = [...code];
       cleared[idx] = '';
@@ -159,7 +159,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     }
     setCode(newCode);
 
-    // Передвигаем фокус на следующий незаполненный/последний измененный инпут
+    // Move focus to next unfilled/last changed input
     const nextIndex = Math.min(3, idx + writeCount);
     inputsRef.current[nextIndex]?.focus();
 
@@ -200,14 +200,14 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
     }
     setCode(newCode);
 
-    // Фокус на следующий индекс или последний
+    // Focus on next or last index
     const nextIndex = Math.min(3, startIdx + digits.length);
     inputsRef.current[nextIndex]?.focus();
 
     if (error) setError('');
   };
 
-  // Автоматическая верификация при вводе всех 4 цифр (только при изменении кода)
+  // Auto-verify when all 4 digits are entered
   React.useEffect(() => {
     const codeString = code.join('');
     if (codeString.length === 4 && !loading) {
@@ -222,7 +222,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       return;
     }
 
-    // Предотвращаем повторный вызов во время загрузки
+    // Prevent re-verification during loading
     if (loading) {
       return;
     }
@@ -235,7 +235,7 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       const result = await checkPhoneVerification(cleanPhone, codeString);
       
       if (result.status === 1) {
-        // Успешная верификация - обновляем состояние
+        // Successful verification - update state
         dispatch({ type: 'SET_PHONE_VERIFIED', payload: true });
         onContinue();
       } else {
@@ -256,8 +256,22 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       const cleanPhone = normalizeUsPhoneNumber(state.phoneNumber);
       await sendPhoneAuthCode(cleanPhone);
       setCodeSent(true);
-      setCode(['', '', '', '']); // Очищаем поле ввода
-      // Фокус на первый инпут
+      setCode(['', '', '', '']); // Clear input field
+      // Reset timer to 30 seconds
+      setResendTimer(30);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      timerRef.current = setInterval(() => {
+        setResendTimer(prev => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      // Focus on first input
       requestAnimationFrame(() => {
         inputsRef.current[0]?.focus();
       });
@@ -430,4 +444,4 @@ export default function PhoneVerifyStep({ onContinue, onBack }: PhoneVerifyStepP
       </Box>
     </Box>
   );
-} 
+}
